@@ -8,9 +8,12 @@ from utils import (RepositoryTestCase, in_repo)
 
 # TODO: It would be better to mock out all the side-effect stuff (e.g. calls
 # to os.path, os.system, etc.) in the future in case this project becomes big enough.
-# For now, these tests are good enough.
+# For now, these tests are good enough. <-- Actually, should mock some stuff out.
+# Come back to testing once this is figured out.
 #
 # TODO: Refactor so that the test_repo is created only once.
+#
+# TODO: Add tests for in_branch (exception thrown) and reset_repo
 class GitRepositoryTestCase(RepositoryTestCase):
     def setUp(self):
         self.test_branches = ['1.10.x', '5.3.x', 'master']

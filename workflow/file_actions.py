@@ -1,6 +1,6 @@
 import os
 
-import utils
+from utils import git
 
 _path = os.path
 
@@ -11,9 +11,9 @@ _path = os.path
 # Using the functions here, we can write things like
 #   facter.in_branch(
 #     '3.6.x',
-#     "Updating stuff!",
 #     update_file('Makefile', <code here>),
-#     create_file('some feature', <code here>)
+#     create_file('some feature', <code here>),
+#     commit("Doing stuff!")
 #   ) 
 #
 # Each "action" should take the repo name and the branch as parameters (to provide
@@ -24,13 +24,14 @@ def update_file(file_path, modify, open_flag = 'a'):
 
 def create_file(file_path, write_to):
     def check_file_does_not_exist(repo, branch, file_path):
-      if not _path.exists(file_path):
+      if _path.exists(file_path):
         raise Exception("%s already exists in the '%s' branch of '%s'!" % (file_path, branch, repo))
 
     return __cu_action(file_path, write_to, check_file_does_not_exist, 'w')
 
 def remove_file(file_path):
-    return __crud_action(file_path, os.remove, __check_file_exists) 
+    removal_action = lambda _file_path: os.remove(_file_path) or "rm"
+    return __crud_action(file_path, removal_action, __check_file_exists) 
 
 # Short for "create" OR "update" action
 def __cu_action(file_path, action, check_action_is_ok, open_flag):
@@ -44,7 +45,7 @@ def __cu_action(file_path, action, check_action_is_ok, open_flag):
 
 def __crud_action(file_path, action, check_action_is_ok):
     def file_action(repo, branch):
-        check_action_is_ok(file_path, repo, branch)
+        check_action_is_ok(repo, branch, file_path)
         result = action(file_path)
         git('%s %s' % (result, file_path))
 
