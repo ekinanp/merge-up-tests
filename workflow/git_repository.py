@@ -9,7 +9,7 @@ _path = os.path
 # NOTE: http://gitpython.readthedocs.io/en/stable/ is a convenient package
 # that might help here. This initial iteration is to prevent people from having
 # to setup pip, which can get complicated.
-class GitRepository:
+class GitRepository(object):
     'Base class for a generic git repository'
 
     # TODO: Maybe move the "commit" method to another file? E.g. perhaps "Git utils"
@@ -51,7 +51,7 @@ class GitRepository:
     def in_branch(self, branch, *actions):
         stub = self.branches.get(branch)
         if stub is None:
-            raise Exception("Only the [%s] branches of the '%s' repo are write-permissible!" % (', '.join(self.branches.keys), self.name)) 
+            raise Exception("Only the [%s] branches of the '%s' repo are write-permissible!" % (', '.join(self.branches.keys()), self.name)) 
 
         with in_directory(self.root):
           git('checkout %s' % stub)
