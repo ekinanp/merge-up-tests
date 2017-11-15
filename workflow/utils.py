@@ -27,6 +27,9 @@ def flatten(xss):
 
 # takes a bunch of actions together and creates a single action
 # out of them.
+#
+# TODO: With the implementation of "flatten" above, this routine
+# can maybe be removed. But this is not that important
 def sequence(*actions):
     def sequenced_action(repo_name, branch):
         for do_action in actions:

@@ -1,10 +1,15 @@
-from contextlib import contextmanager
 import os
 
-from constants import BRANCH_PREFIX
-from utils import (in_directory, git, sequence)
+from workflow.utils import (in_directory, git, sequence)
 
-_path = os.path
+def _default_workspace():
+    path = os.path
+    project_root = path.dirname(path.dirname(path.realpath(__file__)))
+    return path.join(project_root, 'workspace')
+
+GITHUB_FORK = os.environ.get('GITHUB_FORK', 'ekinanp')
+WORKSPACE = os.environ.get('PA_WORKSPACE', _default_workspace()) 
+BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
 
 # NOTE: http://gitpython.readthedocs.io/en/stable/ is a convenient package
 # that might help here. This initial iteration is to prevent people from having
@@ -28,14 +33,14 @@ class GitRepository(object):
     def __stub_branch(branch):
         return BRANCH_PREFIX + "-" + branch
 
-    def __init__(self, github_user, repo_name, workspace, branches):
+    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, workspace = WORKSPACE):
         self.name = repo_name
-        self.root = _path.join(workspace, repo_name)
+        self.root = os.path.join(workspace, repo_name)
         # Map of <base-branch> -> <stubbed-branch>. This is to avoid messing with special
         # stuff that people might have on their forks when simulating the workflow.
         self.branches = dict([[branch, BRANCH_PREFIX + "-" + branch] for branch in branches])
 
-        if _path.exists(self.root):
+        if os.path.exists(self.root):
             return None
 
         git('clone %s %s' % (self._git_url(github_user, self.name), self.root))

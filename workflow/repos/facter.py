@@ -1,15 +1,15 @@
-from component_actions import (bump_cpp_project, bump_version)
-from utils import sequence
+from workflow.actions.component_actions import (bump_cpp_project, bump_version)
+from workflow.utils import sequence
+from git_repository import (GITHUB_FORK, WORKSPACE)
 from component import Component
-from constants import VERSION_RE
 
 class Facter(Component):
-    def __init__(self, github_user, workspace):
+    def __init__(self, github_user = GITHUB_FORK, workspace = WORKSPACE):
         super(Facter, self).__init__(
-            github_user,
             'facter',
+            { "3.6.x": "1.10.x", "3.9.x": "5.3.x", "master": "master"},
+            github_user,
             workspace,
-            { "3.6.x": "1.10.x", "3.9.x": "5.3.x", "master": "master"}
         )
 
     def _bump(self, branch, version):

@@ -1,11 +1,11 @@
 import subprocess
 import re
 
-from git_repository import GitRepository
+from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
 from puppet_agent import PuppetAgent
-from file_actions import update_file
-from utils import (in_directory, commit, flatten)
-from constants import VERSION_RE
+from workflow.actions.file_actions import update_file
+from workflow.utils import (in_directory, commit, flatten)
+from workflow.constants import VERSION_RE
 
 # TODO: Need to consider the case when the component resets itself -- should update the
 # corresponding component ref in the puppet-agent. This should be done once in_branch
@@ -15,8 +15,8 @@ class Component(GitRepository):
     #
     # NOTE: Might not be a bad idea to pass in the puppet_agent repo as a parameter to the
     # constructor.
-    def __init__(self, github_user, component_name, workspace, pa_branches):
-        super(Component, self).__init__(github_user, component_name, workspace, pa_branches.keys())
+    def __init__(self, component_name, pa_branches, github_user, workspace):
+        super(Component, self).__init__(component_name, pa_branches.keys(), github_user, workspace)
         self.pa_branches = {branch: flatten(pa_branches[branch]) for branch in pa_branches}
         self.puppet_agent = PuppetAgent(github_user, workspace)
 

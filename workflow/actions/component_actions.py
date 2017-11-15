@@ -1,6 +1,6 @@
 from file_actions import modify_line
-from utils import sequence
-from constants import VERSION_RE
+from workflow.utils import sequence
+from workflow.constants import VERSION_RE
 
 # This file contains some common component-specific actions that may be useful
 # for doing version bumps, updating/adding to CHANGELOGS, releasenotes, etc.

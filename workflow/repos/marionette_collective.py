@@ -1,13 +1,14 @@
-from component_actions import bump_version
+from workflow.actions.component_actions import bump_version
 from component import Component
+from git_repository import (GITHUB_FORK, WORKSPACE)
 
 class MarionetteCollective(Component):
-    def __init__(self, github_user, workspace):
+    def __init__(self, github_user = GITHUB_FORK, workspace = WORKSPACE):
         super(MarionetteCollective, self).__init__(
-            github_user,
             'marionette-collective',
-            workspace,
-            { "2.10.x": "1.10.x", "2.11.x": "5.3.x", "master": "master"}
+            { "2.10.x": "1.10.x", "2.11.x": "5.3.x", "master": "master"},
+            github_user,
+            workspace
         )
 
     # TODO: This should probably be revised to account for changes in

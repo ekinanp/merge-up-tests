@@ -1,9 +1,7 @@
 import os
 import re
 
-from utils import git
-
-_path = os.path
+from workflow.utils import git
 
 # This module contains some useful functions that are used to create actions capturing
 # CRUD operations on files (save for the "R" part). These actions only make sense on a
@@ -59,7 +57,7 @@ def update_file(file_path, modify):
 
 def create_file(file_path, write_to):
     def check_file_does_not_exist(repo, branch, file_path):
-      if _path.exists(file_path):
+      if os.path.exists(file_path):
         raise Exception("%s already exists in the '%s' branch of '%s'!" % (file_path, branch, repo))
 
     def create_file_action(file_path):
@@ -83,5 +81,5 @@ def __crud_action(file_path, action, check_action_is_ok):
     return file_action
 
 def __check_file_exists(repo, branch, file_path):
-    if not _path.exists(file_path):
+    if not os.path.exists(file_path):
         raise Exception("%s does not exist in the '%s' branch of '%s'!" % (file_path, branch, repo))
