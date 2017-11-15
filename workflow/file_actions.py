@@ -26,12 +26,13 @@ def replace_line(file_path, line_re, substitution):
     def replace_line_action(f, ftemp):
         found_match = False
         for line in f:
+            line = line.rstrip()
             if not found_match:
                 new_line = re.sub(line_re, substitution, line)
                 found_match = new_line != line
                 line = new_line
 
-            ftemp.write(line)
+            ftemp.write("%s\n" % line)
 
         return "add"
 

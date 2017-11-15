@@ -2,24 +2,26 @@ from contextlib import contextmanager
 import os
 
 from constants import BRANCH_PREFIX
-from utils import (in_directory, git)
+from utils import (in_directory, git, sequence)
 
 _path = os.path
 
 # NOTE: http://gitpython.readthedocs.io/en/stable/ is a convenient package
 # that might help here. This initial iteration is to prevent people from having
 # to setup pip, which can get complicated.
+#
+# TODO: Might be worthwhile to revise the in_branch method to just take a generic action
+# that resides inside the branch -- it returns whatever the action returns. Actions that
+# don't do anything can return "None" (e.g. like the existing code which just pushes stuff
+# up to the repo). That way, we can do things like 'git rev-parse HEAD', push stuff up, etc.
+# This might require a refactor elsewhere in the codebase, but it will probably be worth it.
+# This should be a design consideration once other stuff (e.g. version bumps, CHANGELOG updates)
+# have been implemented
 class GitRepository(object):
     'Base class for a generic git repository'
 
-    # TODO: Maybe move the "commit" method to another file? E.g. perhaps "Git utils"
-    # or something similar
     @staticmethod
-    def commit(commit_msg):
-        return lambda repo_name, branch: git('commit -m \"%s\"' % commit_msg)
-
-    @staticmethod
-    def __git_url(github_user, repo_name):
+    def _git_url(github_user, repo_name):
         return "git@github.com:%s/%s.git" % (github_user, repo_name)
 
     @staticmethod
@@ -36,9 +38,9 @@ class GitRepository(object):
         if _path.exists(self.root):
             return None
 
-        git('clone %s %s' % (self.__git_url(github_user, self.name), self.root))
+        git('clone %s %s' % (self._git_url(github_user, self.name), self.root))
         with in_directory(self.root):
-            git('remote add upstream %s' % self.__git_url('puppetlabs', self.name))
+            git('remote add upstream %s' % self._git_url('puppetlabs', self.name))
             git('fetch upstream')
 
         self.reset_branches()
@@ -55,8 +57,7 @@ class GitRepository(object):
 
         with in_directory(self.root):
           git('checkout %s' % stub)
-          for do_action in actions:
-              do_action(self.name, branch)
+          sequence(*actions)(self.name, branch)
           git('push')
 
     def reset_branches(self):
