@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from collections import Iterable
 import os
 
 @contextmanager
@@ -17,9 +18,12 @@ def git(cmd):
 def commit(msg):
     return lambda repo_name, branch: git('commit -m \"%s\"' % msg)
 
-# flattens a list of lists to a single list
+# flattens nested lists into a single list
 def flatten(xss):
-    return [x for xs in xss for x in xs]
+    if not isinstance(xss, Iterable) or isinstance(xss, str):
+        return [xss]
+
+    return reduce(lambda accum, x: accum + flatten(x), xss, [])
 
 # takes a bunch of actions together and creates a single action
 # out of them.

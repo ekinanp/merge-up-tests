@@ -8,4 +8,4 @@ def _default_workspace():
 GITHUB_FORK = os.environ.get('GITHUB_FORK', 'ekinanp')
 WORKSPACE = os.environ.get('PA_WORKSPACE', _default_workspace()) 
 BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
-VERSION_RE = r'(\d+)\.(\d+)\.(\d+)'
+VERSION_RE = r'\d+\.\d+\.\d+'

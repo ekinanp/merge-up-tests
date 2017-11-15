@@ -17,7 +17,7 @@ class Component(GitRepository):
     # constructor.
     def __init__(self, github_user, component_name, workspace, pa_branches):
         super(Component, self).__init__(github_user, component_name, workspace, pa_branches.keys())
-        self.pa_branches = pa_branches
+        self.pa_branches = {branch: flatten(pa_branches[branch]) for branch in pa_branches}
         self.puppet_agent = PuppetAgent(github_user, workspace)
 
         # Now update the component URLs (if they have not already been updated) in the puppet-agent

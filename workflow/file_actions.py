@@ -20,10 +20,10 @@ _path = os.path
 # Each "action" should take the repo name and the branch as parameters (to provide
 # clearer error messages on what might go wrong). 
 
-# replaces the first occurrence of the line matching line_re with
+# modifies the first occurrence of the line matching line_re with
 # the substitution pattern
-def replace_line(file_path, line_re, substitution):
-    def replace_line_action(f, ftemp):
+def modify_line(file_path, line_re, substitution):
+    def modify_line_action(f, ftemp):
         found_match = False
         for line in f:
             line = line.rstrip()
@@ -36,7 +36,7 @@ def replace_line(file_path, line_re, substitution):
 
         return "add"
 
-    return update_file(file_path, replace_line_action)
+    return update_file(file_path, modify_line_action)
 
 # creates a new file at the designated path with the provided contents
 def new_file(file_path, contents):

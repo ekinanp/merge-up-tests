@@ -1,14 +1,14 @@
 from component_actions import (bump_cpp_project)
 from component import Component
 
-class PxpAgent(Component):
+class Libwhereami(Component):
     def __init__(self, github_user, workspace):
-        super(PxpAgent, self).__init__(
+        super(Libwhereami, self).__init__(
             github_user,
-            'pxp-agent',
+            'libwhereami',
             workspace,
-            { "1.5.x": "1.10.x", "1.8.x": "5.3.x", "master": "master"}
+            { "0.1.x": "5.3.x", "master": "master" }
         )
 
     def _bump(self, branch, version):
-        return bump_cpp_project(self.name, version)
+        return bump_cpp_project("whereami", version)

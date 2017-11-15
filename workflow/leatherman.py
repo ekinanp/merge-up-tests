@@ -7,7 +7,7 @@ class Leatherman(Component):
             github_user,
             'leatherman',
             workspace,
-            { "0.12.x": ["1.10.x"], "1.2.x": ["5.3.x"], "master": ["master"]}
+            { "0.12.x": "1.10.x", "1.2.x": "5.3.x", "master": "master"}
         )
 
     def _bump(self, branch, version):
