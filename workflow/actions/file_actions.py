@@ -8,7 +8,7 @@ from workflow.utils import git
 # GitRepository object
 #
 # Using the functions here, we can write things like
-#   facter.in_branch(
+#   facter.to_branch(
 #     '3.6.x',
 #     update_file('Makefile', <code here>),
 #     create_file('some feature', <code here>),

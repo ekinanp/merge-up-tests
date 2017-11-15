@@ -1,6 +1,12 @@
 from contextlib import contextmanager
 from collections import Iterable
 import os
+import subprocess
+
+# decorator that converts a function to an action that can be used with
+# the in_branch routine of git_repository
+def to_action(f):
+    return lambda *args, **kwargs: lambda repo_name, branch: f(*args, **kwargs)
 
 @contextmanager
 def in_directory(name):
@@ -14,9 +20,17 @@ def in_directory(name):
 def git(cmd):
     return os.system("git %s" % cmd)
 
+@to_action
+def git_action(cmd):
+    return git(cmd)
+
+@to_action
+def exec_stdout(*argv):
+    return subprocess.check_output(argv).strip()
+
 # creates a commit action
 def commit(msg):
-    return lambda repo_name, branch: git('commit -m \"%s\"' % msg)
+    return git_action('commit -m \"%s\"' % msg)
 
 # flattens nested lists into a single list
 def flatten(xss):

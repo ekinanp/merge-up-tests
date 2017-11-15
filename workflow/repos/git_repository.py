@@ -1,6 +1,7 @@
 import os
+from functools import partial
 
-from workflow.utils import (in_directory, git, sequence)
+from workflow.utils import (in_directory, git, git_action, sequence)
 
 def _default_workspace():
     path = os.path
@@ -50,29 +51,41 @@ class GitRepository(object):
 
         self.reset_branches()
 
-    # Each action in "actions" should do something to the repo  It should take the repo name and
-    # the branch as parameters (to provide clearer error messages in case something might go wrong).
-    #
-    # NOTE: Remember that the actual branch being modified is a stub of the passed-in
-    # "branch".
-    def in_branch(self, branch, *actions):
+    def in_branch(self, branch, do_action):
         stub = self.branches.get(branch)
         if stub is None:
             raise Exception("Only the [%s] branches of the '%s' repo are write-permissible!" % (', '.join(self.branches.keys()), self.name)) 
 
         with in_directory(self.root):
           git('checkout %s' % stub)
-          sequence(*actions)(self.name, branch)
-          git('push')
+          return do_action(self.name, branch)
+
+    # Each action in "actions" should do something to the repo  It should take the repo name and
+    # the branch as parameters (to provide clearer error messages in case something might go wrong).
+    #
+    # NOTE: Remember that the actual branch being modified is a stub of the passed-in
+    # "branch".
+    def to_branch(self, branch, *actions):
+        actions = actions + (git_action('push'),)
+        self.in_branch(branch, sequence(*actions)) 
+
+    # This allows for more intuitive syntax like (using "facter" as an example):
+    #   facter['3.6.x'](
+    #     <first action>,
+    #     <second action>,
+    #     ...
+    #   )
+    def __getitem__(self, branch):
+        return partial(self.to_branch, branch)
+        
+    def reset_branch(self, branch):
+        self.in_branch(branch, sequence(
+            git_action('fetch upstream'),
+            git_action('reset --hard upstream/%s' % branch),
+            git_action('clean -f -d'),
+            git_action('push --set-upstream origin --force')
+        ))
 
     def reset_branches(self):
-        dummy_branch = 'fewafweafafea'
-        with in_directory(self.root):
-            git('stash')
-            git('checkout -b %s' % dummy_branch)
-            for base in self.branches:
-                stub = self.branches[base]
-                git('branch -D %s' % stub)
-                git('checkout -b %s upstream/%s' % (stub, base))
-                git('push --set-upstream origin %s --force' % stub)
-            git('branch -D %s' % dummy_branch)
+        for branch in self.branches:
+            self.reset_branch(branch)

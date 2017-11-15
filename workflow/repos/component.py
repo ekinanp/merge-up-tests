@@ -1,15 +1,11 @@
-import subprocess
 import re
 
 from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
 from puppet_agent import PuppetAgent
 from workflow.actions.file_actions import update_file
-from workflow.utils import (in_directory, commit, flatten)
+from workflow.utils import (in_directory, to_action, commit, flatten, exec_stdout)
 from workflow.constants import VERSION_RE
 
-# TODO: Need to consider the case when the component resets itself -- should update the
-# corresponding component ref in the puppet-agent. This should be done once in_branch
-# is updated, to make the code changes easier.
 class Component(GitRepository):
     # Here, the "pa_branches" parameter is a map of <component_branch> -> [<puppet_agent_branch>].,
     #
@@ -32,19 +28,19 @@ class Component(GitRepository):
                 "Initialized the '%s' component's url!" % self.name
             )
 
-    def in_branch(self, branch, *actions):
-        super(Component, self).in_branch(branch, *actions)
-        with in_directory(self.root):
-            sha = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
+    def to_branch(self, branch, *actions):
+        super(Component, self).to_branch(branch, *actions)
+        self.__update_ref(branch)
 
-        for pa_branch in self.pa_branches[branch]:
-            self.puppet_agent.bump_component(self.name, pa_branch, sha)
+    def reset_branch(self, branch):
+        super(Component, self).reset_branch(branch)
+        self.__update_ref(branch)
 
     def bump(self, branch, version):
         if re.match(VERSION_RE, version) is None: 
             raise Exception("Version %s is not of the form x.y.z!" % version)
 
-        self.in_branch(
+        self.to_branch(
             branch,
             self._bump(branch, version),
             commit("Bumped %s to %s!" % (self.name, version))
@@ -54,3 +50,8 @@ class Component(GitRepository):
     # the component
     def _bump(self, branch, version):
         raise NotImplementedError()
+
+    def __update_ref(self, branch):
+        sha = self.in_branch(branch, exec_stdout('git', 'rev-parse', 'HEAD'))
+        for pa_branch in self.pa_branches[branch]:
+            self.puppet_agent.bump_component(self.name, pa_branch, sha)

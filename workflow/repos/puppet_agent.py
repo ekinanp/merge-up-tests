@@ -23,8 +23,7 @@ class PuppetAgent(GitRepository):
             component_info[key] = new_value
             ftemp.write(json.dumps(component_info))
 
-        super(PuppetAgent, self).in_branch(
-                branch,
-                update_file(self.component_json(component), update_component_json_action),
-                commit(commit_msg)
+        self[branch](
+            update_file(self.component_json(component), update_component_json_action),
+            commit(commit_msg)
         )
