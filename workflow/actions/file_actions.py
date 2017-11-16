@@ -17,6 +17,11 @@ from workflow.utils import git
 #
 # Each "action" should take the repo name and the branch as parameters (to provide
 # clearer error messages on what might go wrong). 
+#
+# TODO: For some stupid reason, Python inserts an extra EOF character at the end
+# of a text file after writing it. This shows up as a red circle in the Git diff.
+# when doing a PR in GitHub. See if there's a way to remove this, although that
+# isn't really top priority
 
 # modifies the first occurrence of the line matching line_re with
 # the substitution pattern
@@ -32,13 +37,21 @@ def modify_line(file_path, line_re, substitution):
 
             ftemp.write("%s\n" % line)
 
-        return "add"
-
     return update_file(file_path, modify_line_action)
 
 # creates a new file at the designated path with the provided contents
 def new_file(file_path, contents):
     return create_file(file_path, lambda f: f.write(contents))
+
+def rewrite_file(file_path, new_contents):
+    return update_file(file_path, lambda _, ftemp: ftemp.write(new_contents)) 
+
+def read_file(file_path, read = lambda f: f.read()): 
+    def read_file_action(file_path):
+        with open(file_path, 'r') as f:
+            return read(f)
+
+    return __crud_action(file_path, read_file_action, __check_file_exists)
 
 # modify(f, ftemp) takes the file object "f" as its first argument (opened with the "read"
 # flag) and a temporary file object "ftemp" as its second argument (opened with the "w" flag).
@@ -51,7 +64,7 @@ def update_file(file_path, modify):
 
         os.rename(temp_file, file_path) 
 
-        return "add"
+        git('add %s' % file_path)
 
     return __crud_action(file_path, update_file_action, __check_file_exists)
 
@@ -64,19 +77,18 @@ def create_file(file_path, write_to):
         with open(file_path, 'w') as f:
             write_to(f)
 
-        return "add"
+        git('add %s' % file_path)
 
     return __crud_action(file_path, create_file_action, check_file_does_not_exist)
 
 def remove_file(file_path):
-    removal_action = lambda _file_path: os.remove(_file_path) or "rm"
+    removal_action = lambda _file_path: os.remove(_file_path) or git('rm %s' % _file_path)
     return __crud_action(file_path, removal_action, __check_file_exists) 
 
 def __crud_action(file_path, action, check_action_is_ok):
     def file_action(repo, branch):
         check_action_is_ok(repo, branch, file_path)
-        result = action(file_path)
-        git('%s %s' % (result, file_path))
+        return action(file_path)
 
     return file_action
 

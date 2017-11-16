@@ -15,6 +15,13 @@ def in_directory(name):
     yield name
     os.chdir(cwd)
 
+# Compares two semantic versions
+#
+# TODO: Should just use a python package that already
+# has these calculations
+def cmp_version(v1, v2):
+    return cmp(v1.split('.'), v2.split('.'))
+
 # NOTE: This can probably be removed if we decide to use
 # http://gitpython.readthedocs.io/en/stable/
 def git(cmd):
