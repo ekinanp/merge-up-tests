@@ -8,8 +8,7 @@ from workflow.utils import git
 # GitRepository object
 #
 # Using the functions here, we can write things like
-#   facter.to_branch(
-#     '3.6.x',
+#   facter['3.6.x'](
 #     update_file('Makefile', <code here>),
 #     create_file('some feature', <code here>),
 #     commit("Doing stuff!")
@@ -17,6 +16,8 @@ from workflow.utils import git
 #
 # Each "action" should take the repo name and the branch as parameters (to provide
 # clearer error messages on what might go wrong). 
+#
+# TODO: Add "after_line", "before_line", "modify_lines" when time permits.
 #
 # TODO: For some stupid reason, Python inserts an extra EOF character at the end
 # of a text file after writing it. This shows up as a red circle in the Git diff.
@@ -26,6 +27,7 @@ from workflow.utils import git
 # modifies the first occurrence of the line matching line_re with
 # the substitution pattern
 def modify_line(file_path, line_re, substitution):
+    # TODO: Rewrite this function so it's less iterative and more functional
     def modify_line_action(f, ftemp):
         found_match = False
         for line in f:
