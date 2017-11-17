@@ -1,6 +1,7 @@
 from functools import partial
+import json
 
-from file_actions import (modify_line, read_file, rewrite_file)
+from file_actions import (modify_line, read_file, rewrite_file, update_file)
 from workflow.repos.git_repository import GitRepository
 from workflow.utils import (commit, const, validate_version)
 from workflow.constants import VERSION_RE
@@ -49,6 +50,21 @@ def bump_version(version):
         commit("Bumping %s to %s!" % (repo_name, version))(repo_name, branch)
 
     return bump_version_action
+
+def update_component_json(component, key, new_value):
+    @metadata_exists('vanagon_repo')
+    def update_component_json_action(repo_name, branch):
+        def modify_component_json_file(f, ftemp):
+            component_info = json.loads(f.read())
+            component_info[key] = new_value
+            ftemp.write(json.dumps(component_info))
+
+        return update_file("configs/components/%s.json" % component, modify_component_json_file)(repo_name, branch)
+
+    return update_component_json_action
+
+def bump_component(component, new_ref):
+    return update_component_json(component, "ref", new_ref)
 
 # action should take the changelog as its argument
 def to_changelog_action(action):

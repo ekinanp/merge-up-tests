@@ -2,9 +2,9 @@ import re
 
 from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
 from puppet_agent import PuppetAgent
-from workflow.actions.file_actions import update_file
-from workflow.utils import (in_directory, to_action, commit, flatten, exec_stdout, validate_version)
+from workflow.utils import (in_directory, commit, flatten, exec_stdout)
 from workflow.constants import VERSION_RE
+from workflow.actions.repo_actions import (bump_component, update_component_json)
 
 class Component(GitRepository):
     # Here, the "pa_branches" parameter is a map of <component_branch> -> [<puppet_agent_branch>].,
@@ -20,12 +20,9 @@ class Component(GitRepository):
         # repo
         component_url = super(Component, self.__class__)._git_url(github_user, self.name)
         for pa_branch in set(flatten(self.pa_branches.values())):
-            self.puppet_agent.update_component_json(
-                self.name,
-                pa_branch,
-                'url',
-                component_url,
-                "Initialized the '%s' component's url!" % self.name
+            self.puppet_agent[pa_branch](
+                update_component_json(self.name, 'url', component_url),
+                commit("Initialized the '%s' component's url!" % self.name)
             )
 
     def to_branch(self, branch, *actions):
@@ -39,4 +36,7 @@ class Component(GitRepository):
     def __update_ref(self, branch):
         sha = self.in_branch(branch, exec_stdout('git', 'rev-parse', 'HEAD'))
         for pa_branch in self.pa_branches[branch]:
-            self.puppet_agent.bump_component(self.name, pa_branch, sha)
+            self.puppet_agent[pa_branch](
+                bump_component(self.name, sha),
+                commit("Bumping '%s' to '%s'!" % (self.name, sha))
+            )
