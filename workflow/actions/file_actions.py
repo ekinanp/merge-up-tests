@@ -1,7 +1,8 @@
 import os
 import re
 
-from workflow.utils import git
+from workflow.utils import (git, find_some, validate_input)
+from functools import partial
 
 # This module contains some useful functions that are used to create actions capturing
 # CRUD operations on files (save for the "R" part). These actions only make sense on a
@@ -24,22 +25,34 @@ from workflow.utils import git
 # when doing a PR in GitHub. See if there's a way to remove this, although that
 # isn't really top priority
 
-# modifies the first occurrence of the line matching line_re with
-# the substitution pattern
 def modify_line(file_path, line_re, substitution):
-    # TODO: Rewrite this function so it's less iterative and more functional
-    def modify_line_action(f, ftemp):
-        found_match = False
-        for line in f:
-            line = line.rstrip()
-            if not found_match:
-                new_line = re.sub(line_re, substitution, line)
-                found_match = new_line != line
-                line = new_line
+    return modify_lines(file_path, line_re, substitution, 1)
 
-            ftemp.write("%s\n" % line)
+def modify_lines(file_path, line_re, substitution, n = -1):
+    return map_lines(file_path, line_re, lambda line: re.sub(line_re, substitution, line), n)
 
-    return update_file(file_path, modify_line_action)
+def after_line(file_path, line_re, contents):
+    return after_lines(file_path, line_re, contents, 1)
+
+def after_lines(file_path, line_re, contents, n = -1):
+    return map_lines(file_path, line_re, lambda line: "%s\n%s\n" % (line[:-1], contents), n)
+
+def before_line(file_path, line_re, contents):
+    return before_lines(file_path, line_re, contents, 1)
+
+def before_lines(file_path, line_re, contents, n = -1):
+    return map_lines(file_path, line_re, lambda line: "%s\n%s" % (contents, line), n)
+
+def map_lines(file_path, line_re, g, n = -1):
+    def map_lines_action(f, ftemp):
+        lines = f.readlines() 
+        matching_ixs = find_some(partial(re.search, line_re), lines, n)
+        for ix in matching_ixs:
+            lines[ix] = g(lines[ix])
+
+        ftemp.writelines(lines)
+
+    return update_file(file_path, map_lines_action)
 
 # creates a new file at the designated path with the provided contents
 def new_file(file_path, contents):
@@ -94,6 +107,8 @@ def __crud_action(file_path, action, check_action_is_ok):
 
     return file_action
 
+# checks if the given file exists
 def __check_file_exists(repo, branch, file_path):
     if not os.path.exists(file_path):
         raise Exception("%s does not exist in the '%s' branch of '%s'!" % (file_path, branch, repo))
+

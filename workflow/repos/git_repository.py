@@ -1,7 +1,7 @@
 import os
 from functools import partial
 
-from workflow.utils import (in_directory, git, git_action, sequence)
+from workflow.utils import (in_directory, git, git_action, sequence, validate_presence)
 
 def _default_workspace():
     path = os.path
@@ -25,6 +25,9 @@ BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
 # have been implemented
 class GitRepository(object):
     'Base class for a generic git repository'
+    # TODO: Probably a better way to do this stuff. Refactor so that we don't have to store
+    # this info. as class variables
+    changelog_info = {}
 
     @staticmethod
     def _git_url(github_user, repo_name):
@@ -34,7 +37,7 @@ class GitRepository(object):
     def __stub_branch(branch):
         return BRANCH_PREFIX + "-" + branch
 
-    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, workspace = WORKSPACE):
+    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, workspace = WORKSPACE, **kwargs):
         self.name = repo_name
         self.root = os.path.join(workspace, repo_name)
         # Map of <base-branch> -> <stubbed-branch>. This is to avoid messing with special
@@ -75,6 +78,11 @@ class GitRepository(object):
     #     <second action>,
     #     ...
     #   )
+    #
+    # TODO: Extend this so it can handle something like:
+    #   facter['3.6.x', '5.3.x', ...](
+    #   )
+    # which means "In branches 3.6.x and 5.3.x of facter do ..."
     def __getitem__(self, branch):
         return partial(self.to_branch, branch)
         

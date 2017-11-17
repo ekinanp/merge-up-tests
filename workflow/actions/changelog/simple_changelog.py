@@ -1,7 +1,7 @@
 import re
 
 from workflow.constants import VERSION_RE
-from workflow.utils import cmp_version
+from workflow.utils import (cmp_version, validate_regex, validate_version)
 
 VERSION_HEADER = r'##\s+(%s)' % VERSION_RE 
 CHANGES_SUMMARY = r'([^\s\*][^\*#]*)'
@@ -16,6 +16,11 @@ CHANGELOG_ENTRY = r'\*\s+((?:\[(?:#)?[^\]]+\]|[^\*#]+)[^\*#]+)'
 
 VERSION_ENTRIES =r'%s\s+%s\s+((?:%s)*)' % (VERSION_HEADER, CHANGES_SUMMARY, CHANGELOG_ENTRY)
 
+# TODO: Remove this after testing
+def o(log_path):
+    with open('/Users/enis.inan/GitHub/puppet-agent-workflow/test-changelog/simple/%s' % log_path, 'r') as f:
+        return f.read()
+
 # This class represents "simple" CHANGELOGs such as what's found in pxp-agent
 # and the cpp-pcp-client.
 class SimpleChangelog(object):
@@ -27,7 +32,23 @@ class SimpleChangelog(object):
             return parsed_results
 
         version_changes = [version_change[0] for version_change in re.findall(VERSION_ENTRIES.join(['(', ')']), contents, re.M)]
-        self.parsed_results = reduce(parse_version_entry, version_changes, {})
+        self.changelog = reduce(parse_version_entry, version_changes, {})
+
+    # For kwargs, if adding in changes for a new version, then pass in an entry into the
+    # "summary" field. This is required.
+    @validate_version(1)
+    @validate_regex(CHANGES_SUMMARY, 'summary')
+    def update(self, version, *changes, **kwargs):
+        version_entry = self.changelog.get(version)
+        if version_entry:
+            self.changelog[version] = (version_entry[0], list(changes) + version_entry[1])
+            return
+
+        summary = kwargs.get('summary')
+        if not summary:
+            raise Exception("When creating a new set of changes for a new version, you must provide a summary of the nature of these changes!")
+
+        self.changelog[version] = (summary, changes)
 
     def render(self):  
         def render_entry((version, (summary, version_entries))):
@@ -37,6 +58,6 @@ class SimpleChangelog(object):
 
             return '\n\n'.join(['## %s' % version, summary, rendered_version_entries])
 
-        sorted_parsed_results = sorted(self.parsed_results.iteritems(), cmp = lambda e1, e2: cmp_version(e1[0], e2[0]), reverse = True)
+        sorted_parsed_results = sorted(self.changelog.iteritems(), cmp = lambda e1, e2: cmp_version(e1[0], e2[0]), reverse = True)
 
         return '\n'.join([render_entry(e) for e in sorted_parsed_results])

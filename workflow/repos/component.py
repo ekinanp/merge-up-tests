@@ -3,7 +3,7 @@ import re
 from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
 from puppet_agent import PuppetAgent
 from workflow.actions.file_actions import update_file
-from workflow.utils import (in_directory, to_action, commit, flatten, exec_stdout)
+from workflow.utils import (in_directory, to_action, commit, flatten, exec_stdout, validate_version)
 from workflow.constants import VERSION_RE
 
 class Component(GitRepository):
@@ -11,8 +11,8 @@ class Component(GitRepository):
     #
     # NOTE: Might not be a bad idea to pass in the puppet_agent repo as a parameter to the
     # constructor.
-    def __init__(self, component_name, pa_branches, github_user, workspace):
-        super(Component, self).__init__(component_name, pa_branches.keys(), github_user, workspace)
+    def __init__(self, component_name, pa_branches, github_user, workspace, **kwargs):
+        super(Component, self).__init__(component_name, pa_branches.keys(), github_user, workspace, **kwargs)
         self.pa_branches = {branch: flatten(pa_branches[branch]) for branch in pa_branches}
         self.puppet_agent = PuppetAgent(github_user, workspace)
 
@@ -36,10 +36,8 @@ class Component(GitRepository):
         super(Component, self).reset_branch(branch)
         self.__update_ref(branch)
 
+    @validate_version(2)
     def bump(self, branch, version):
-        if re.match(VERSION_RE, version) is None: 
-            raise Exception("Version %s is not of the form x.y.z!" % version)
-
         self.to_branch(
             branch,
             self._bump(branch, version),
