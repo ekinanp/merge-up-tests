@@ -36,19 +36,6 @@ class Component(GitRepository):
         super(Component, self).reset_branch(branch)
         self.__update_ref(branch)
 
-    @validate_version(2)
-    def bump(self, branch, version):
-        self.to_branch(
-            branch,
-            self._bump(branch, version),
-            commit("Bumped %s to %s!" % (self.name, version))
-        )
-
-    # This method should return an action which contains all the necessary code to version-bump
-    # the component
-    def _bump(self, branch, version):
-        raise NotImplementedError()
-
     def __update_ref(self, branch):
         sha = self.in_branch(branch, exec_stdout('git', 'rev-parse', 'HEAD'))
         for pa_branch in self.pa_branches[branch]:

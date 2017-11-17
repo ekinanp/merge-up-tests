@@ -43,21 +43,8 @@ def validate_regex(regex, key, error_msg = None):
 
     return validate_input(lambda s: re.match(regex, s), key, error_msg)
 
-def validate_version(key):
-    return validate_regex(VERSION_RE, key, "'%s' is not a valid semantic version!")
-
-def validate_presence(collection, key, error_msg = None):
-    if not error_msg:
-        error_msg = "The passed in key, '%s', is not present in this collection!"
-
-    def contains(key):
-        try:
-            collection[key]
-            return True
-        except:
-            return False
-
-    return validate_input(contains, key, error_msg)
+def validate_version(version):
+    return validate_regex(VERSION_RE, version, "'%s' is not a valid semantic version!")
 
 @contextmanager
 def in_directory(name):
@@ -115,12 +102,9 @@ def find_some(p, xs, n = 1):
 
 # takes a bunch of actions together and creates a single action
 # out of them.
-#
-# TODO: With the implementation of "flatten" above, this routine
-# can maybe be removed. But this is not that important
 def sequence(*actions):
-    def sequenced_action(repo_name, branch):
+    def sequenced_action(*args, **kwargs):
         for do_action in actions:
-            do_action(repo_name, branch)
+            do_action(*args, **kwargs)
 
     return sequenced_action

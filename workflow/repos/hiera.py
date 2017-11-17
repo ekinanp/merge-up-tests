@@ -9,7 +9,5 @@ class Hiera(Component):
             { "3.3.x": "1.10.x", "3.4.x": "5.3.x", "master": "master"},
             github_user,
             workspace,
+            version_bumper = bump_ruby_project('hiera', ["3.4.x", "master"])
         )
-
-    def _bump(self, branch, version):
-        return bump_ruby_project(self.name, branch, version, ["3.4.x", "master"])

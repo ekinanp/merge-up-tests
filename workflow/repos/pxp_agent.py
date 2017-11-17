@@ -1,4 +1,4 @@
-from workflow.actions.component_actions import (bump_cpp_project)
+from workflow.actions.component_actions import bump_cpp_project
 from workflow.actions.changelog.simple_changelog import SimpleChangelog
 from workflow.actions.file_actions import modify_lines
 from git_repository import (GITHUB_FORK, WORKSPACE)
@@ -12,11 +12,8 @@ class PxpAgent(Component, ChangelogRepository):
             { "1.5.x": "1.10.x", "1.8.x": "5.3.x", "master": "master"},
             github_user,
             workspace,
-            changelog_type = SimpleChangelog,
-            changelog_path = "CHANGELOG.md",
+            changelog = (SimpleChangelog, "CHANGELOG.md"),
+            version_bumper = bump_cpp_project("pxp-agent")
         )
 
         self._init_changelog = modify_lines("CHANGELOG.md", "^\s+(\[[^\]]+\])", "* \g<1>")
-
-    def _bump(self, branch, version):
-        return bump_cpp_project(self.name, version)

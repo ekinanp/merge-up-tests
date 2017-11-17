@@ -8,8 +8,6 @@ class Puppet(Component):
             'puppet',
             { "4.10.x": "1.10.x", "5.3.x": "5.3.x", "master": "master"},
             github_user,
-            workspace
+            workspace,
+            version_bumper = bump_ruby_project('puppet', ["5.3.x", "master"])
         )
-
-    def _bump(self, branch, version):
-        return bump_ruby_project(self.name, branch, version, ["5.3.x", "master"])

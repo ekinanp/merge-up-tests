@@ -1,7 +1,7 @@
 import os
 from functools import partial
 
-from workflow.utils import (in_directory, git, git_action, sequence, validate_presence)
+from workflow.utils import (in_directory, git, git_action, sequence, validate_input)
 
 def _default_workspace():
     path = os.path
@@ -25,9 +25,25 @@ BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
 # have been implemented
 class GitRepository(object):
     'Base class for a generic git repository'
+
+    # Stores metadata about the repo, such as its Changelog information, version bumper,
+    # etc.
+    #
     # TODO: Probably a better way to do this stuff. Refactor so that we don't have to store
     # this info. as class variables
-    changelog_info = {}
+    repo_metadata = {}
+
+    # Checks if the desired metadata exists for the given repo. This is so actions can query
+    # the repo_metadata.
+    @staticmethod
+    def metadata_exists(entry):
+        def metadata_validator(repo_name):
+            try:
+                return GitRepository.repo_metadata[repo_name][entry]
+            except:
+                return False
+
+        return validate_input(metadata_validator, 0, "Repo '%s' does not have an entry for '{_entry}'!".format(_entry = entry))
 
     @staticmethod
     def _git_url(github_user, repo_name):
@@ -37,12 +53,23 @@ class GitRepository(object):
     def __stub_branch(branch):
         return BRANCH_PREFIX + "-" + branch
 
+    @classmethod
+    def _add_repo_metadata(cls, repo_name, key, metadata):
+        cur_metadata = cls.repo_metadata.get(repo_name)
+        if not cur_metadata:
+            cls.repo_metadata[repo_name] = {}
+
+        cls.repo_metadata[repo_name][key] = metadata
+
     def __init__(self, repo_name, branches, github_user = GITHUB_FORK, workspace = WORKSPACE, **kwargs):
         self.name = repo_name
         self.root = os.path.join(workspace, repo_name)
         # Map of <base-branch> -> <stubbed-branch>. This is to avoid messing with special
         # stuff that people might have on their forks when simulating the workflow.
         self.branches = dict([[branch, BRANCH_PREFIX + "-" + branch] for branch in branches])
+
+        for key in kwargs:
+            self.__class__._add_repo_metadata(self.name, key, kwargs[key])
 
         if os.path.exists(self.root):
             return None

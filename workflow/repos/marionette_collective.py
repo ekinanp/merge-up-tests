@@ -1,4 +1,4 @@
-from workflow.actions.component_actions import bump_version
+from workflow.actions.component_actions import bump_version_file
 from component import Component
 from git_repository import (GITHUB_FORK, WORKSPACE)
 
@@ -8,11 +8,6 @@ class MarionetteCollective(Component):
             'marionette-collective',
             { "2.10.x": "1.10.x", "2.11.x": "5.3.x", "master": "master"},
             github_user,
-            workspace
+            workspace,
+            version_bumper = bump_version_file("lib/mcollective.rb", 'VERSION="', '"')
         )
-
-    # TODO: This should probably be revised to account for changes in
-    # website/releasenotes.md, but this can be done later once the CHANGELOG
-    # stuff is added
-    def _bump(self, branch, version):
-        return bump_version("lib/mcollective.rb", 'VERSION="', version, '"')

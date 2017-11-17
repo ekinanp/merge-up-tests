@@ -5,11 +5,7 @@ from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
 # These are GitRepositories that have a CHANGELOG
 class ChangelogRepository(GitRepository):
     def __init__(self, repo_name, branches, github_user = GITHUB_FORK, workspace = WORKSPACE, **kwargs):
-        super(ChangelogRepository, self).__init__(repo_name, branches, github_user, workspace)
-
-        changelog_type = kwargs.get('changelog_type')
-        changelog_path = kwargs.get('changelog_path')
-        super(ChangelogRepository, self.__class__).changelog_info[self.name] = (changelog_type, changelog_path)
+        super(ChangelogRepository, self).__init__(repo_name, branches, github_user, workspace, **kwargs)
 
         self._init_changelog = noop_action
 
