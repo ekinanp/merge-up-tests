@@ -1,4 +1,4 @@
-from workflow.actions.component_actions import (bump_cpp_project, bump_version_file, sequence)
+from workflow.actions.repo_actions import (bump_cpp_project, bump_version_file, sequence)
 from git_repository import (GITHUB_FORK, WORKSPACE)
 from component import Component
 

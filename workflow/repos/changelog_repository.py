@@ -1,5 +1,5 @@
 from workflow.utils import (commit, const, noop_action)
-from workflow.actions.component_actions import to_changelog_action
+from workflow.actions.repo_actions import to_changelog_action
 from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
 
 # These are GitRepositories that have a CHANGELOG
