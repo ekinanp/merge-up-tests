@@ -1,7 +1,7 @@
 from workflow.actions.file_actions import *
 from workflow.repos.git_repository import *
 from workflow.constants import *
-from workflow.utils import commit
+from workflow.utils import (commit, const)
 
 facter = GitRepository("facter", ["3.6.x", "3.9.x", "master"])
 facter.reset_branches()
@@ -13,9 +13,9 @@ facter.to_branch(
     remove_file("CMakeLists.txt"),
     rewrite_file("MAINTAINERS", "NO MAN"),
     new_file("test_after", "Line One\nLine Two\nLine Three"),
-    after_lines("test_after", "Line", "Some junk right below!"),
+    after_lines("test_after", "Line", const("Some junk right below!")),
     new_file("test_before", "Line One\nLine Two\nLine Three"),
-    before_lines("test_before", "Line", "Some junk right before!"),
+    before_lines("test_before", "Line", const("Some junk right before!")),
     commit("Testing out some CRUD stuff!")
 )
 
