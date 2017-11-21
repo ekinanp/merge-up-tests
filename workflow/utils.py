@@ -79,6 +79,8 @@ def git_action(cmd):
 def exec_stdout(*argv):
     return subprocess.check_output(argv).strip()
 
+git_head = exec_stdout('git', 'rev-parse', 'HEAD')
+
 # creates a commit action
 def commit(msg):
     return git_action('commit -m \"%s\"' % msg)

@@ -2,7 +2,7 @@ import re
 
 from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
 from puppet_agent import PuppetAgent
-from workflow.utils import (in_directory, commit, flatten, exec_stdout)
+from workflow.utils import (in_directory, commit, flatten, git_head)
 from workflow.constants import VERSION_RE
 from workflow.actions.repo_actions import (bump_component, update_component_json)
 
@@ -34,7 +34,7 @@ class Component(GitRepository):
         self.__update_ref(branch)
 
     def __update_ref(self, branch):
-        sha = self.in_branch(branch, exec_stdout('git', 'rev-parse', 'HEAD'))
+        sha = self.in_branch(branch, git_head)
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](
                 bump_component(self.name, sha),

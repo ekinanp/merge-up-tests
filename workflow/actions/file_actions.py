@@ -31,17 +31,17 @@ def modify_line(file_path, line_re, substitution):
 def modify_lines(file_path, line_re, substitution, n = -1):
     return map_lines(file_path, line_re, lambda line: re.sub(line_re, substitution, line), n)
 
-def after_line(file_path, line_re, contents):
-    return after_lines(file_path, line_re, contents, 1)
+def after_line(file_path, line_re, generate_contents):
+    return after_lines(file_path, line_re, generate_contents, 1)
 
-def after_lines(file_path, line_re, contents, n = -1):
-    return map_lines(file_path, line_re, lambda line: "%s\n%s\n" % (line[:-1], contents), n)
+def after_lines(file_path, line_re, generate_contents, n = -1):
+    return map_lines(file_path, line_re, lambda line: "%s\n%s\n" % (line[:-1], generate_contents(line)), n)
 
-def before_line(file_path, line_re, contents):
-    return before_lines(file_path, line_re, contents, 1)
+def before_line(file_path, line_re, generate_contents):
+    return before_lines(file_path, line_re, generate_contents, 1)
 
-def before_lines(file_path, line_re, contents, n = -1):
-    return map_lines(file_path, line_re, lambda line: "%s\n%s" % (contents, line), n)
+def before_lines(file_path, line_re, generate_contents, n = -1):
+    return map_lines(file_path, line_re, lambda line: "%s\n%s" % (generate_contents(line), line), n)
 
 def map_lines(file_path, line_re, g, n = -1):
     def map_lines_action(f, ftemp):

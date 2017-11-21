@@ -81,14 +81,28 @@ class GitRepository(object):
 
         self.reset_branches()
 
+    # TODO: Refactor in_repo, in_branch and to_branch to make their uniformity
+    # clearer. This workaround is just to make it easier to test stuff.
+    def in_repo(self, do_action):
+        with in_directory(self.root):
+            return do_action()
+
     def in_branch(self, branch, do_action):
         stub = self.branches.get(branch)
         if stub is None:
             raise Exception("Only the [%s] branches of the '%s' repo are write-permissible!" % (', '.join(self.branches.keys()), self.name)) 
-
-        with in_directory(self.root):
+        
+        def in_repo_action():
           git('checkout %s' % stub)
           return do_action(self.name, branch)
+
+        return self.in_repo(in_repo_action)
+
+
+#        return self.in_repo(
+#        with in_directory(self.root):
+#          git('checkout %s' % stub)
+#          return do_action(self.name, branch)
 
     # Each action in "actions" should do something to the repo  It should take the repo name and
     # the branch as parameters (to provide clearer error messages in case something might go wrong).
