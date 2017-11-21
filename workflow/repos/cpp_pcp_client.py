@@ -1,6 +1,6 @@
 from workflow.actions.repo_actions import bump_cpp_project
 from component import Component
-from workflow.actions.changelog.simple_changelog import SimpleChangelog
+from workflow.actions.structured_file.simple_changelog import SimpleChangelog
 from git_repository import (GITHUB_FORK, WORKSPACE)
 from component import Component
 from changelog_repository import ChangelogRepository

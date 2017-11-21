@@ -1,5 +1,5 @@
 from workflow.actions.repo_actions import bump_cpp_project
-from workflow.actions.changelog.simple_changelog import SimpleChangelog
+from workflow.actions.structured_file.simple_changelog import SimpleChangelog
 from workflow.actions.file_actions import modify_lines
 from git_repository import (GITHUB_FORK, WORKSPACE)
 from component import Component

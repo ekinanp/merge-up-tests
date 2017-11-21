@@ -24,6 +24,15 @@ def test_simple_changelog():
                 "Just seeing if this released!",
                 summary = "Some basic maintenance releases!"
             ),
+            update_changelog(
+                "1.2.10",
+                "Seeing if versions maintain sorted order!",
+                summary = "Premature releases!"
+            ),
+            update_changelog(
+                "1.2.10",
+                "Some random update!",
+            ),
             commit("Updated the CHANGELOG!")
         )
 

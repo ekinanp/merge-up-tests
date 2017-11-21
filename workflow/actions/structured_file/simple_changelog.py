@@ -1,20 +1,9 @@
-import re
-
+from workflow.actions.structured_file.structured_file import StructuredFile
+from workflow.actions.structured_file.section import (Section, version_entry, changelog_entry, CHANGELOG_ENTRY_ID_RE)
+from workflow.utils import (validate_version, validate_regex, invert_cmp, cmp_version)
 from workflow.constants import VERSION_RE
-from workflow.utils import (cmp_version, validate_regex, validate_version)
 
-VERSION_HEADER = r'##\s+(%s)' % VERSION_RE 
-CHANGES_SUMMARY = r'([^\s\*][^\*#]*)'
-
-# The "\[(?:#)?[^\]]+\]" is a regex describing the issue/ticket no. (label)
-# associated with the entry, while the "[^\*#]+" part is the entry's
-# content. Thus, we can read this as:
-#   CHANGELOG_ENTRY = '\*\s+(LABEL<OR>CONTENT)CONTENT'
-# where if there is no label, it will look just for the content. Otherwise,
-# if there is a label it will get that and then the content.
-CHANGELOG_ENTRY = r'\*\s+((?:\[(?:#)?[^\]]+\]|[^\*#]+)[^\*#]+)'
-
-VERSION_ENTRIES =r'%s\s+%s\s+((?:%s)*)' % (VERSION_HEADER, CHANGES_SUMMARY, CHANGELOG_ENTRY)
+CHANGELOG_ENTRY_RE = r'([^\s\*][^\*#]*)'
 
 # TODO: Remove this after testing
 def o(log_path):
@@ -23,41 +12,25 @@ def o(log_path):
 
 # This class represents "simple" CHANGELOGs such as what's found in pxp-agent
 # and the cpp-pcp-client.
-class SimpleChangelog(object):
+class SimpleChangelog(StructuredFile):
     def __init__(self, contents):
-        def parse_version_entry(parsed_results, version_entry):
-            (version, changes_summary, changelog_entries) = re.match(VERSION_ENTRIES, version_entry, re.M).groups()[0:3]
-
-            parsed_results[version.strip()] = (changes_summary.strip(), map(lambda xs: xs.strip(), re.findall(CHANGELOG_ENTRY, changelog_entries, re.M)))
-            return parsed_results
-
-        version_changes = [version_change[0] for version_change in re.findall(VERSION_ENTRIES.join(['(', ')']), contents, re.M)]
-        self.changelog = reduce(parse_version_entry, version_changes, {})
+        super(SimpleChangelog, self).__init__(contents, version_entry(changelog_entry), ordering_fn = lambda s1, s2: invert_cmp(cmp_version)(s1.section_id, s2.section_id))
 
     # For kwargs, if adding in changes for a new version, then pass in an entry into the
     # "summary" field. This is required.
     @validate_version(1)
-    @validate_regex(CHANGES_SUMMARY, 'summary')
+    @validate_regex(CHANGELOG_ENTRY_RE, 'summary')
     def update(self, version, *changes, **kwargs):
-        version_entry = self.changelog.get(version)
+        entry_sections = [Section.from_header_str("* %s" % change, CHANGELOG_ENTRY_ID_RE) for change in changes]
+        version_entry = self.parsed_file[version]
         if version_entry:
-            self.changelog[version] = (version_entry[0], list(changes) + version_entry[1])
+            version_entry.insert_subsections(*entry_sections)
             return
 
         summary = kwargs.get('summary')
         if not summary:
             raise Exception("When creating a new set of changes for a new version, you must provide a summary of the nature of these changes!")
 
-        self.changelog[version] = (summary, changes)
-
-    def render(self):  
-        def render_entry((version, (summary, version_entries))):
-            rendered_version_entries = '\n'.join(["* %s" % version_entry for version_entry in version_entries]) 
-            if rendered_version_entries:
-                rendered_version_entries += "\n"
-
-            return '\n\n'.join(['## %s' % version, summary, rendered_version_entries])
-
-        sorted_parsed_results = sorted(self.changelog.iteritems(), cmp = lambda e1, e2: cmp_version(e1[0], e2[0]), reverse = True)
-
-        return '\n'.join([render_entry(e) for e in sorted_parsed_results])
+        entry_sections[-1].header_str += "\n"
+        version_section = Section.from_header_str("## %s\n\n%s\n" % (version, summary), VERSION_RE, *entry_sections)
+        self.parsed_file.insert_subsections(version_section)

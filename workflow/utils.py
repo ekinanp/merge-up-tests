@@ -54,6 +54,9 @@ def in_directory(name):
     os.chdir(cwd)
 
 # Compares two semantic versions
+
+def invert_cmp(cmp_fn):
+    return lambda x, y: -cmp_fn(x, y)
 #
 # TODO: Should just use a python package that already
 # has these calculations
@@ -99,6 +102,16 @@ def find_some(p, xs, n = 1):
         filtered_ixs = islice(filtered_ixs, n)
 
     return list(filtered_ixs)
+
+# unique takes a comparator function between two elements,
+# and a list, and removes all entries where cmp(a, b) == 0.
+def unique(compare, xs):
+    uxs = []
+    for x in xs:
+        if not find_some(lambda ux: compare(x, ux) == 0, uxs):
+            uxs.append(x)
+
+    return uxs
 
 # takes a bunch of actions together and creates a single action
 # out of them.
