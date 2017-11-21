@@ -13,7 +13,6 @@ class StructuredFile(object):
                 break
 
         while section_stack:
-#            print("TOP OF STACK:\n%s" % str(section_stack[-1]))
             cur_section = section_stack.pop()
             cur_section.finish_section()
 

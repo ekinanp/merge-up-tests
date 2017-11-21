@@ -1,7 +1,7 @@
 from functools import partial
 import re
 
-from workflow.utils import (find_some, unique)
+from workflow.utils import (find_some, unique, invert_cmp, cmp_version)
 from workflow.constants import VERSION_RE
 
 # TODO: Could maybe refactor so that the parsed_subsections would be a tuple of the
@@ -111,6 +111,9 @@ def version_entry(*subsections):
         return Section(line, r"(%s)" % VERSION_RE, "(?:[^#]|\s).*", *subsections)
 
     return version_section
+
+def version_entry_ordering_fn(s1, s2):
+    return invert_cmp(cmp_version)(s1.section_id, s2.section_id)
 
 CHANGELOG_ENTRY_ID_RE = r'([^-\*\s].*)'
 

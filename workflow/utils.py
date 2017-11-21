@@ -61,7 +61,10 @@ def invert_cmp(cmp_fn):
 # TODO: Should just use a python package that already
 # has these calculations
 def cmp_version(v1, v2):
-    return cmp(v1.split('.'), v2.split('.'))
+    def to_tuple(v):
+        return tuple([int(vi) for vi in v.split('.')])
+
+    return cmp(to_tuple(v1), to_tuple(v2))
 
 # NOTE: This can probably be removed if we decide to use
 # http://gitpython.readthedocs.io/en/stable/
@@ -90,6 +93,9 @@ def flatten(xss):
         return [xss]
 
     return reduce(lambda accum, x: accum + flatten(x), xss, [])
+
+def reverse(xs):
+    return xs[::-1]
 
 # const function from Haskell
 def const(v):
