@@ -5,7 +5,7 @@ from workflow.utils import (in_directory, git, git_action, sequence, validate_in
 
 def _default_workspace():
     path = os.path
-    project_root = path.dirname(path.dirname(path.realpath(__file__)))
+    project_root = path.dirname(path.dirname(path.dirname(path.realpath(__file__))))
     return path.join(project_root, 'workspace')
 
 GITHUB_FORK = os.environ.get('GITHUB_FORK', 'ekinanp')

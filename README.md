@@ -10,6 +10,12 @@ directory. Example actions include:
 
 * repository-specific actions. These are actions common to any git repository. Examples include version bumps, updating changelogs, updating component.json files for vanagon repos, etc. See workflow/actions/repo\_actions.py for more info.
 
+## Setup
+This script does not depend on any external python packages. All one has to do is set PYTHONPATH=\<project-root\>:${PYTHONPATH} in ~/.bash\_profile. On my machine,
+\<project-root\> = /Users/enis.inan/GitHub/puppet-agent-workflow. Then you can do:
+    python test-scripts/\<script-name\>
+to run one of the example scripts.
+
 ## GitRepository
 This class represents any fork of a puppetlabs git repository. To create an instance of this object, the user must provide the following parameters:
 * repo\_name representing the repository's basename
@@ -17,6 +23,8 @@ This class represents any fork of a puppetlabs git repository. To create an inst
 * github\_user representing the specific fork that will be operated on
 * workspace representing the root directory where all repositories will be stored
 * metadata, captured in \*\*kwargs. This includes information such as whether the repository has a CHANGELOG and if so, what type; whether the repository can be version bumped, and whether the repository is a vanagon repo. See workflow/repos/pxp\_agent.py for example, or workflow/repos/puppet\_agent.py for how these parameters are passed in.
+
+Note that the github\_user and workspace are set to a default value. For github\_user, this is either through the environment variable GITHUB\_FORK or to "ekinanp" by default. For workspace, this is the environment varaible "PA\_WORKSPACE", or \<project-root\>/workspace.
 
 At a high level, the code will clone the repo from scratch if it does not already exist, and then "reset" each of the passed in branches so that they are synchronized with their upstream counterparts. This effectively creates a clean slate for the branches to start from. If the repo does exist, the constructor will not do anything.
 
