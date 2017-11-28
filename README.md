@@ -11,6 +11,8 @@ directory. Example actions include:
 * repository-specific actions. These are actions common to any git repository. Examples include version bumps, updating changelogs, updating component.json files for vanagon repos, etc. See workflow/actions/repo\_actions.py for more info.
 
 ## Setup
+You must have Python 2 installed in order to run the code in this repo.
+
 This script does not depend on any external python packages. All one has to do is set PYTHONPATH=\<project-root\>:${PYTHONPATH} in ~/.bash\_profile. On my machine,
 \<project-root\> = /Users/enis.inan/GitHub/puppet-agent-workflow. Then you can do:
     python test-scripts/\<script-name\>
