@@ -17,7 +17,7 @@ from utils import (RepositoryTestCase, in_repo)
 class GitRepositoryTestCase(RepositoryTestCase):
     def setUp(self):
         self.test_branches = ['1.10.x', '5.3.x', 'master']
-        self.test_repo = GitRepository(self.github_fork, 'puppet-agent', self.workspace, self.test_branches)
+        self.test_repo = GitRepository(self.github_fork, 'puppet-agent', self.self.test_branches)
 
     # TODO: Add test to ensure that repo is not re-created if self.root already
     # exists!

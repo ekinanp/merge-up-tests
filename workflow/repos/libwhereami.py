@@ -3,21 +3,24 @@ from workflow.actions.structured_file.sectioned_changelog import (SectionedChang
 from workflow.actions.file_actions import after_line
 from workflow.utils import (const, noop_action)
 from component import Component
-from git_repository import (GITHUB_FORK, WORKSPACE)
+from git_repository import GITHUB_FORK
 from changelog_repository import ChangelogRepository
 
 class Libwhereami(Component, ChangelogRepository):
-    def __init__(self, github_user = GITHUB_FORK, workspace = WORKSPACE, **kwargs):
+    def __init__(self, github_user = GITHUB_FORK, **kwargs):
+        kwargs['metadata'] = {
+            'changelog' : (
+                lambda contents: SectionedChangelog(contents, "Summary", "Features", "Additions", "Fixes"),
+                "CHANGELOG.md"
+            ),
+            'version_bumper' : bump_cpp_project("whereami") 
+        }
+
         super(Libwhereami, self).__init__(
             'libwhereami',
             { "0.1.x": "5.3.x", "master": "master" },
             github_user,
-            workspace,
-            changelog = (
-                lambda contents: SectionedChangelog(contents, "Summary", "Features", "Additions", "Fixes"),
-                "CHANGELOG.md"
-            ),
-            version_bumper = bump_cpp_project("whereami") 
+            **kwargs
         )
 
     def _init_changelog(self):

@@ -1,15 +1,10 @@
 import os
 from functools import partial
+from tempfile import mkdtemp
 
 from workflow.utils import (in_directory, git, git_action, sequence, validate_input)
 
-def _default_workspace():
-    path = os.path
-    project_root = path.dirname(path.dirname(path.dirname(path.realpath(__file__))))
-    return path.join(project_root, 'workspace')
-
 GITHUB_FORK = os.environ.get('GITHUB_FORK', 'ekinanp')
-WORKSPACE = os.environ.get('PA_WORKSPACE', _default_workspace()) 
 BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
 
 # NOTE: http://gitpython.readthedocs.io/en/stable/ is a convenient package
@@ -49,10 +44,6 @@ class GitRepository(object):
     def _git_url(github_user, repo_name):
         return "git@github.com:%s/%s.git" % (github_user, repo_name)
 
-    @staticmethod
-    def __stub_branch(branch):
-        return BRANCH_PREFIX + "-" + branch
-
     @classmethod
     def _add_repo_metadata(cls, repo_name, key, metadata):
         cur_metadata = cls.repo_metadata.get(repo_name)
@@ -61,15 +52,24 @@ class GitRepository(object):
 
         cls.repo_metadata[repo_name][key] = metadata
 
-    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, workspace = WORKSPACE, **kwargs):
+    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, **kwargs):
+        if not github_user:
+            raise Exception("github_user cannot be empty! Use the environment variable GITHUB_USERNAME instead!")
+
         self.name = repo_name
-        self.root = os.path.join(workspace, repo_name)
+        self.workspace = kwargs.get('workspace')
+        if not self.workspace:
+            self.workspace = mkdtemp(prefix = 'tmp-workspace')
+        self.root = os.path.join(self.workspace, self.name)
+
         # Map of <base-branch> -> <stubbed-branch>. This is to avoid messing with special
         # stuff that people might have on their forks when simulating the workflow.
-        self.branches = dict([[branch, BRANCH_PREFIX + "-" + branch] for branch in branches])
+        stub_branch = kwargs.get('stub_branch', lambda branch: kwargs.get('stub_prefix', BRANCH_PREFIX) + "-" + branch)
+        self.branches = dict([[branch, stub_branch(branch)] for branch in branches])
 
-        for key in kwargs:
-            self.__class__._add_repo_metadata(self.name, key, kwargs[key])
+        metadata = kwargs.get('metadata', {})
+        for key in metadata:
+            self.__class__._add_repo_metadata(self.name, key, metadata[key])
 
         if os.path.exists(self.root):
             return None
@@ -78,8 +78,6 @@ class GitRepository(object):
         with in_directory(self.root):
             git('remote add upstream %s' % self._git_url('puppetlabs', self.name))
             git('fetch upstream')
-
-        self.reset_branches()
 
     # TODO: Refactor in_repo, in_branch and to_branch to make their uniformity
     # clearer. This workaround is just to make it easier to test stuff.
@@ -97,12 +95,6 @@ class GitRepository(object):
           return do_action(self.name, branch)
 
         return self.in_repo(in_repo_action)
-
-
-#        return self.in_repo(
-#        with in_directory(self.root):
-#          git('checkout %s' % stub)
-#          return do_action(self.name, branch)
 
     # Each action in "actions" should do something to the repo  It should take the repo name and
     # the branch as parameters (to provide clearer error messages in case something might go wrong).

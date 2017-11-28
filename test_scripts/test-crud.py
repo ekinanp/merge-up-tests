@@ -3,7 +3,9 @@ from workflow.repos.git_repository import *
 from workflow.constants import *
 from workflow.utils import (commit, const)
 
-facter = GitRepository("facter", ["3.6.x", "3.9.x", "master"])
+from test-scripts.test_utils import WORKSPACE
+
+facter = GitRepository("facter", ["3.6.x", "3.9.x", "master"], workspace = WORKSPACE)
 facter.reset_branches()
 
 facter.to_branch(

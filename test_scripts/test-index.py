@@ -4,10 +4,12 @@ from workflow.actions.file_actions import *
 from workflow.constants import *
 from workflow.utils import *
 
-puppet_agent = PuppetAgent()
+from test_scripts.test_utils import WORKSPACE
+
+puppet_agent = PuppetAgent(workspace = WORKSPACE)
 puppet_agent.reset_branches()
 
-facter = Facter()
+facter = Facter(workspace = WORKSPACE)
 facter.reset_branches()
 
 facter['3.6.x'](

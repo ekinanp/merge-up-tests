@@ -1,11 +1,11 @@
 from workflow.utils import (commit, const, noop_action)
 from workflow.actions.repo_actions import to_changelog_action
-from git_repository import (GitRepository, GITHUB_FORK, WORKSPACE)
+from git_repository import (GitRepository, GITHUB_FORK)
 
 # These are GitRepositories that have a CHANGELOG
 class ChangelogRepository(GitRepository):
-    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, workspace = WORKSPACE, **kwargs):
-        super(ChangelogRepository, self).__init__(repo_name, branches, github_user, workspace, **kwargs)
+    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, **kwargs):
+        super(ChangelogRepository, self).__init__(repo_name, branches, github_user, **kwargs)
 
     def _init_changelog(self):
         return noop_action

@@ -7,12 +7,14 @@ from workflow.repos.libwhereami import *
 from workflow.constants import *
 from workflow.actions.repo_actions import *
 
+from test_scripts.test_utils import WORKSPACE
+
 def test_simple_changelog():
-    puppet_agent = PuppetAgent()
+    puppet_agent = PuppetAgent(workspace = WORKSPACE)
     puppet_agent.reset_branches()
 
     for (component_type, branch) in [(PxpAgent, "1.8.x"), (CppPcpClient, "1.5.x")]:
-        component = component_type() 
+        component = component_type(workspace = WORKSPACE) 
         component.reset_branch(branch)
         component[branch](
             update_changelog(
@@ -40,11 +42,11 @@ def test_simple_changelog():
         )
 
 def test_sectioned_changelog():
-    puppet_agent = PuppetAgent()
+    puppet_agent = PuppetAgent(workspace = WORKSPACE)
     puppet_agent.reset_branches()
 
     # Test out Leatherman
-    leatherman = Leatherman()
+    leatherman = Leatherman(workspace = WORKSPACE)
     leatherman.reset_branch("master")
     leatherman["master"](
         update_changelog(
@@ -73,7 +75,7 @@ def test_sectioned_changelog():
 
     # libwhereami test is just to make sure its specific routines work,
     # all the correctness stuff was tested with leatherman above
-    libwhereami = Libwhereami()
+    libwhereami = Libwhereami(workspace = WORKSPACE)
     libwhereami.reset_branch("master")
     libwhereami["master"](
         update_changelog(
