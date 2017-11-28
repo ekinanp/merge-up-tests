@@ -20,7 +20,8 @@ class Libwhereami(Component, ChangelogRepository):
             version_bumper = bump_cpp_project("whereami") 
         )
 
-        self._init_changelog = after_line("CHANGELOG.md", "Initial release of", const("\n### Additions"))
+    def _init_changelog(self):
+        return after_line("CHANGELOG.md", "Initial release of", const("\n### Additions"))
 
 additions = update_section("Additions")
 fixes = update_section("Fixes")

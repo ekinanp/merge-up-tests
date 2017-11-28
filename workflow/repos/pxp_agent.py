@@ -16,4 +16,6 @@ class PxpAgent(Component, ChangelogRepository):
             version_bumper = bump_cpp_project("pxp-agent")
         )
 
-        self._init_changelog = modify_lines("CHANGELOG.md", "^\s+(\[[^\]]+\])", "* \g<1>")
+    def _init_changelog(self):
+        return modify_lines("CHANGELOG.md", "^\s+(\[[^\]]+\])", "* \g<1>")
+
