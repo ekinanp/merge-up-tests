@@ -5,7 +5,7 @@ from tempfile import mkdtemp
 
 from workflow.utils import (in_directory, git, git_action, sequence, validate_input)
 
-GITHUB_USERNAME = os.environ.get('GITHUB_USERNAME', 'ekinanp')
+GITHUB_USERNAME = os.environ.get('GITHUB_USERNAME', '')
 BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
 
 # NOTE: http://gitpython.readthedocs.io/en/stable/ is a convenient package
@@ -65,8 +65,8 @@ class GitRepository(object):
 
         # Map of <base-branch> -> <stubbed-branch>. This is to avoid messing with special
         # stuff that people might have on their forks when simulating the workflow.
-        stub_branch = kwargs.get('stub_branch', lambda branch: kwargs.get('stub_prefix', BRANCH_PREFIX) + "-" + branch)
-        self.branches = dict([[branch, stub_branch(branch)] for branch in branches])
+        self.stub_branch = kwargs.get('stub_branch', lambda branch: kwargs.get('stub_prefix', BRANCH_PREFIX) + "-" + branch)
+        self.branches = dict([[branch, self.stub_branch(branch)] for branch in branches])
 
         metadata = kwargs.get('metadata', {})
         for key in metadata:
@@ -79,6 +79,20 @@ class GitRepository(object):
         with in_directory(self.root):
             git('remote add upstream %s' % self._git_url('puppetlabs', self.name))
             git('fetch upstream')
+
+        # Ensure the branches are checked out
+        branch_exists = lambda git_branch : self.in_repo(lambda : git('show-branch %s' % git_branch)) == 0
+        for branch in self.branches:
+            stub = self.branches[branch]
+            if branch_exists(stub):
+                continue
+
+            if branch_exists("remotes/origin/%s" % stub):
+                self.in_repo(lambda : git("checkout -b %s origin/%s" % (stub, stub)))
+                continue
+
+            self.in_repo(lambda : git("checkout -b %s" % stub))
+            self.reset_branch(branch)
 
     # TODO: Refactor in_repo, in_branch and to_branch to make their uniformity
     # clearer. This workaround is just to make it easier to test stuff.
@@ -137,7 +151,7 @@ class GitRepository(object):
             git_action('fetch upstream'),
             git_action('reset --hard upstream/%s' % branch),
             git_action('clean -f -d'),
-            git_action('push --set-upstream origin --force')
+            git_action('push --set-upstream origin %s --force' % self.branches[branch])
         ))
 
     def reset_branches(self):
