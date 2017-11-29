@@ -22,13 +22,13 @@ def test_version_bump(component_type, *branches):
         component[branch](bump_version("10.12.13"))
 
 components = [
-#    (CppPcpClient, "1.5.x"),
-#    (Facter, "3.6.x"),
-#    (Hiera, "3.3.x", "3.4.x"),
-#    (Leatherman, "0.12.x"),
-#    (Libwhereami, "master"),
-#    (MarionetteCollective, "2.11.x"),
-#    (Puppet, "4.10.x", "5.3.x"),
+    (CppPcpClient, "1.5.x"),
+    (Facter, "3.6.x"),
+    (Hiera, "3.3.x", "3.4.x"),
+    (Leatherman, "0.12.x"),
+    (Libwhereami, "master"),
+    (MarionetteCollective, "2.11.x"),
+    (Puppet, "4.10.x", "5.3.x"),
     (PxpAgent, "1.8.x"),
 ]
 

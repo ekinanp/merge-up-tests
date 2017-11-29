@@ -20,7 +20,7 @@ class SimpleChangelog(StructuredFile):
     # "summary" field. This is required.
     @validate_version(1)
     @validate_regex(CHANGES_SUMMARY_RE, 'summary')
-    def update(self, version, *changes):
+    def update(self, version, *changes, **kwargs):
         entry_sections = [Section.from_header_str("* %s" % change, CHANGELOG_ENTRY_ID_RE) for change in changes]
         version_entry = self.parsed_file[version]
         if version_entry:

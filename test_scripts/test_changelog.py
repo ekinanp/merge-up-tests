@@ -86,5 +86,5 @@ def test_sectioned_changelog():
         commit("Updated the CHANGELOG!")
     )
 
-#test_simple_changelog()
+test_simple_changelog()
 test_sectioned_changelog()
