@@ -1,9 +1,9 @@
 from workflow.actions.repo_actions import bump_ruby_project
 from component import Component
-from git_repository import GITHUB_FORK
+from git_repository import GITHUB_USERNAME
 
 class Puppet(Component):
-    def __init__(self, github_user = GITHUB_FORK, **kwargs):
+    def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = {
             'version_bumper' : bump_ruby_project('puppet', ["5.3.x", "master"])
         }

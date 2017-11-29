@@ -5,7 +5,7 @@ from tempfile import mkdtemp
 
 from workflow.utils import (in_directory, git, git_action, sequence, validate_input)
 
-GITHUB_FORK = os.environ.get('GITHUB_FORK', 'ekinanp')
+GITHUB_USERNAME = os.environ.get('GITHUB_USERNAME', 'ekinanp')
 BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
 
 # NOTE: http://gitpython.readthedocs.io/en/stable/ is a convenient package
@@ -53,7 +53,7 @@ class GitRepository(object):
 
         cls.repo_metadata[repo_name][key] = metadata
 
-    def __init__(self, repo_name, branches, github_user = GITHUB_FORK, **kwargs):
+    def __init__(self, repo_name, branches, github_user = GITHUB_USERNAME, **kwargs):
         if not github_user:
             raise Exception("github_user cannot be empty! Use the environment variable GITHUB_USERNAME instead!")
 

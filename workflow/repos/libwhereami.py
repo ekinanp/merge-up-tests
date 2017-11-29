@@ -3,11 +3,11 @@ from workflow.actions.structured_file.sectioned_changelog import (SectionedChang
 from workflow.actions.file_actions import after_line
 from workflow.utils import (const, noop_action)
 from component import Component
-from git_repository import GITHUB_FORK
+from git_repository import GITHUB_USERNAME
 from changelog_repository import ChangelogRepository
 
 class Libwhereami(Component, ChangelogRepository):
-    def __init__(self, github_user = GITHUB_FORK, **kwargs):
+    def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = {
             'changelog' : (
                 lambda contents: SectionedChangelog(contents, "Summary", "Features", "Additions", "Fixes"),

@@ -12,7 +12,7 @@ from workflow.utils import in_directory
 class RepositoryTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(RepositoryTestCase, self).__init__(*args, **kwargs)
-        self.github_fork = os.environ.get('GITHUB_FORK', 'ekinanp')
+        self.github_fork = os.environ.get('GITHUB_USERNAME', 'ekinanp')
         self.workspace = tempfile.mkdtemp(prefix='test-pa-workspace')
 
     def tearDown(self):

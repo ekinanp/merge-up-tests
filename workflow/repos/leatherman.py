@@ -1,11 +1,11 @@
 from workflow.actions.repo_actions import bump_cpp_project
 from workflow.actions.structured_file.sectioned_changelog import (SectionedChangelog, update_section)
 from component import Component
-from git_repository import GITHUB_FORK
+from git_repository import GITHUB_USERNAME
 from changelog_repository import ChangelogRepository
 
 class Leatherman(Component, ChangelogRepository):
-    def __init__(self, github_user = GITHUB_FORK, **kwargs):
+    def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = {
             'changelog' : (
                 lambda contents: SectionedChangelog(contents, "Added", "Fixed", "Changed", "Known Issues", "Removed"),

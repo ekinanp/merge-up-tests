@@ -1,9 +1,9 @@
 from workflow.actions.repo_actions import (bump_cpp_project, bump_version_file, sequence)
-from git_repository import GITHUB_FORK
+from git_repository import GITHUB_USERNAME
 from component import Component
 
 class Facter(Component):
-    def __init__(self, github_user = GITHUB_FORK, **kwargs):
+    def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = {
             'version_bumper' : sequence(
                 bump_cpp_project("FACTER"),

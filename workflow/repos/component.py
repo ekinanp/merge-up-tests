@@ -1,6 +1,6 @@
 import re
 
-from git_repository import (GitRepository, GITHUB_FORK)
+from git_repository import (GitRepository, GITHUB_USERNAME)
 from puppet_agent import PuppetAgent
 from workflow.utils import (in_directory, commit, flatten, git_head)
 from workflow.constants import VERSION_RE
