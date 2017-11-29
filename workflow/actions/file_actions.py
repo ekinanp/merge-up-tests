@@ -96,6 +96,14 @@ def create_file(file_path, write_to):
 
     return __crud_action(file_path, create_file_action, check_file_does_not_exist)
 
+def rename_file(old_path, new_path):
+    def rename_action(file_path):
+        os.rename(file_path, new_path)
+        git('add %s' % file_path)
+        git('add %s' % new_path)
+
+    return __crud_action(old_path, rename_action, __check_file_exists)
+
 def remove_file(file_path):
     removal_action = lambda _file_path: os.remove(_file_path) or git('rm %s' % _file_path)
     return __crud_action(file_path, removal_action, __check_file_exists) 

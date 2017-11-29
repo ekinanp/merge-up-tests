@@ -3,7 +3,7 @@ from workflow.repos.git_repository import *
 from workflow.constants import *
 from workflow.utils import (commit, const)
 
-from test-scripts.test_utils import WORKSPACE
+from test_scripts.test_utils import WORKSPACE
 
 facter = GitRepository("facter", ["3.6.x", "3.9.x", "master"], workspace = WORKSPACE)
 facter.reset_branches()
@@ -18,6 +18,7 @@ facter.to_branch(
     after_lines("test_after", "Line", const("Some junk right below!")),
     new_file("test_before", "Line One\nLine Two\nLine Three"),
     before_lines("test_before", "Line", const("Some junk right before!")),
+    rename_file("Rakefile", "MY_RAKEFILE"),
     commit("Testing out some CRUD stuff!")
 )
 
