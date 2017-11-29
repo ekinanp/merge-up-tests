@@ -73,6 +73,7 @@ class GitRepository(object):
             self.__class__._add_repo_metadata(self.name, key, metadata[key])
 
         if os.path.exists(self.root):
+            self.__prepare_stubs()
             return None
 
         git('clone %s %s' % (self._git_url(github_user, self.name), self.root))
@@ -80,19 +81,7 @@ class GitRepository(object):
             git('remote add upstream %s' % self._git_url('puppetlabs', self.name))
             git('fetch upstream')
 
-        # Ensure the branches are checked out
-        branch_exists = lambda git_branch : self.in_repo(lambda : git('show-branch %s' % git_branch)) == 0
-        for branch in self.branches:
-            stub = self.branches[branch]
-            if branch_exists(stub):
-                continue
-
-            if branch_exists("remotes/origin/%s" % stub):
-                self.in_repo(lambda : git("checkout -b %s origin/%s" % (stub, stub)))
-                continue
-
-            self.in_repo(lambda : git("checkout -b %s" % stub))
-            self.reset_branch(branch)
+        self.__prepare_stubs()
 
     # TODO: Refactor in_repo, in_branch and to_branch to make their uniformity
     # clearer. This workaround is just to make it easier to test stuff.
@@ -156,4 +145,19 @@ class GitRepository(object):
 
     def reset_branches(self):
         for branch in self.branches:
+            self.reset_branch(branch)
+
+    def __prepare_stubs(self):
+        # Ensure the branches are checked out
+        branch_exists = lambda git_branch : self.in_repo(lambda : git('show-branch %s' % git_branch)) == 0
+        for branch in self.branches:
+            stub = self.branches[branch]
+            if branch_exists(stub):
+                continue
+
+            if branch_exists("remotes/origin/%s" % stub):
+                self.in_repo(lambda : git("checkout -b %s origin/%s" % (stub, stub)))
+                continue
+
+            self.in_repo(lambda : git("checkout -b %s" % stub))
             self.reset_branch(branch)

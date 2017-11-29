@@ -89,6 +89,13 @@ Changes will actually be made and pushed up to `stub("3.6.x")`.
 ## Component
 This class represents components of a vanagon repo, found in configs/components. These are git repositories, the only difference is that they automatically initialize their vanagon repo's corresponding component.json file's URL and REF to point to the forked url and the HEAD ref, respectively. They also update the component.json file's REF automatically whenever something is pushed up to them. See `workflow/repos/facter.py` for an example of how a component is initialized.
 
+NOTE: Currently, any created component must pass in the puppet agent repo for the keyword argument
+"puppet_agent". For example, to successfully create the "Facter" component, you can do the following code:
+
+```
+Facter(puppet_agent = <puppet_agent_repo>)
+```
+
 ## Merge-Conflict Scenarios
 These are found in the merge-conflicts folder, specifically the conflict\_generators.py file. Currently, only the following scenarios are created based on comments in PA-1704:
 * Component JSON conflicts
