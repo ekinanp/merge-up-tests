@@ -9,7 +9,7 @@ from test_scripts.test_utils import WORKSPACE
 puppet_agent = PuppetAgent(workspace = WORKSPACE)
 puppet_agent.reset_branches()
 
-facter = Facter(workspace = WORKSPACE)
+facter = Facter(workspace = WORKSPACE, puppet_agent = puppet_agent)
 facter.reset_branches()
 
 facter['3.6.x'](

@@ -14,7 +14,7 @@ def test_simple_changelog():
     puppet_agent.reset_branches()
 
     for (component_type, branch) in [(PxpAgent, "1.8.x"), (CppPcpClient, "1.5.x")]:
-        component = component_type(workspace = WORKSPACE)
+        component = component_type(workspace = WORKSPACE, puppet_agent = puppet_agent)
         component.reset_branch(branch)
         component[branch](
             update_changelog(
@@ -46,7 +46,7 @@ def test_sectioned_changelog():
     puppet_agent.reset_branches()
 
     # Test out Leatherman
-    leatherman = Leatherman(workspace = WORKSPACE)
+    leatherman = Leatherman(workspace = WORKSPACE, puppet_agent = puppet_agent)
     leatherman.reset_branch("master")
     leatherman["master"](
         update_changelog(
@@ -75,7 +75,7 @@ def test_sectioned_changelog():
 
     # libwhereami test is just to make sure its specific routines work,
     # all the correctness stuff was tested with leatherman above
-    libwhereami = Libwhereami(workspace = WORKSPACE)
+    libwhereami = Libwhereami(workspace = WORKSPACE, puppet_agent = puppet_agent)
     libwhereami.reset_branch("master")
     libwhereami["master"](
         update_changelog(

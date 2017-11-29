@@ -10,16 +10,18 @@ from workflow.repos.marionette_collective import MarionetteCollective
 from workflow.repos.puppet import Puppet
 from workflow.repos.pxp_agent import PxpAgent
 
+# NOTE: Should set a workspace here as well
+
 PUPPET_AGENT = PuppetAgent()
 COMPONENTS = {
-    'cpp-pcp-client': CppPcpClient(),
-    'facter': Facter(),
-    'hiera': Hiera(),
-    'leatherman': Leatherman(),
-    'libwhereami': Libwhereami(),
-    'marionette-collective': MarionetteCollective(),
-    'puppet': Puppet(),
-    'pxp-agent': PxpAgent(),
+    'cpp-pcp-client': CppPcpClient(puppet_agent = PUPPET_AGENT),
+    'facter': Facter(puppet_agent = PUPPET_AGENT),
+    'hiera': Hiera(puppet_agent = PUPPET_AGENT),
+    'leatherman': Leatherman(puppet_agent = PUPPET_AGENT),
+    'libwhereami': Libwhereami(puppet_agent = PUPPET_AGENT),
+    'marionette-collective': MarionetteCollective(puppet_agent = PUPPET_AGENT),
+    'puppet': Puppet(puppet_agent = PUPPET_AGENT),
+    'pxp-agent': PxpAgent(puppet_agent = PUPPET_AGENT),
 }
 GLOBAL_NAMES = {
     'marionette-collective': 'MCOLLECTIVE'

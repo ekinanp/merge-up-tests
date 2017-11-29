@@ -16,7 +16,7 @@ def test_version_bump(component_type, *branches):
     puppet_agent = PuppetAgent(workspace = WORKSPACE)
     puppet_agent.reset_branches()
 
-    component = component_type(workspace = WORKSPACE)
+    component = component_type(workspace = WORKSPACE, puppet_agent = puppet_agent)
     for branch in branches:
         component.reset_branch(branch)
         component[branch](bump_version("10.12.13"))
