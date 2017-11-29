@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from collections import Iterable
-from itertools import (ifilter, islice)
+from itertools import (ifilter, ifilterfalse, islice)
 import os
 import re
 import subprocess
@@ -129,3 +129,10 @@ def sequence(*actions):
             do_action(*args, **kwargs)
 
     return sequenced_action
+
+# partitions an iterator into two halves:
+#   (T, F)
+# where T contains the elements s.t. pred(x) is True,
+# and F are those where pred(x) is False
+def ipartition(pred, iterator):
+    return (ifilter(pred, iterator), ifilterfalse(lambda x : not pred(x), iterator))
