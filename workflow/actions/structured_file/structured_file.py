@@ -16,5 +16,5 @@ class StructuredFile(object):
             cur_section = section_stack.pop()
             cur_section.finish_section()
 
-    def render(self):  
+    def render(self):
         return self.parsed_file.render()

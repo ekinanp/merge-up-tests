@@ -13,7 +13,7 @@ class Libwhereami(Component, ChangelogRepository):
                 lambda contents: SectionedChangelog(contents, "Summary", "Features", "Additions", "Fixes"),
                 "CHANGELOG.md"
             ),
-            'version_bumper' : bump_cpp_project("whereami") 
+            'version_bumper' : bump_cpp_project("whereami")
         }
 
         super(Libwhereami, self).__init__(
@@ -25,7 +25,7 @@ class Libwhereami(Component, ChangelogRepository):
 
     def _init_changelog(self):
         def init_changelog_action(repo, branch):
-            return after_line("CHANGELOG.md", "Initial release of", const("\n### Additions"))(repo, branch) if branch != "0.1.x" else noop_action(repo, branch) 
+            return after_line("CHANGELOG.md", "Initial release of", const("\n### Additions"))(repo, branch) if branch != "0.1.x" else noop_action(repo, branch)
 
         return init_changelog_action
 

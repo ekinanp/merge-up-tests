@@ -38,7 +38,7 @@ class Section:
         self.__sort_subsections()
 
     def process_line(self, section_stack, line):
-        top = section_stack[-1] 
+        top = section_stack[-1]
         if (top != self):
             raise Exception("This is not the current context.")
 
@@ -56,7 +56,7 @@ class Section:
 
     def finish_section(self):
         self.section_id = re.search(self.section_id_re, self.header_str).group(1)
-        
+
         # Ensure that the subsections are unique
         unique_subsections = unique(lambda s1, s2: not Section.same_section(s1, s2), self.parsed_subsections)
         if len(unique_subsections) != len(self.parsed_subsections):

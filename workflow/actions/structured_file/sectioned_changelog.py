@@ -20,7 +20,7 @@ class SectionedChangelog(StructuredFile):
 
     # Note that each element in "changes" should be of the form:
     #    'subsection_header' => [changelog_entries]
-    # 
+    #
     # TODO: Refactor this code to remove the "if subsection then blah" pattern,
     # as it also appears in SimpleChangelog. Probably should be something that
     # belongs in the "Section" class. It is a bit annoying to read here.
@@ -33,12 +33,12 @@ class SectionedChangelog(StructuredFile):
             return accum
 
         merged_entries = reduce(add_entries, changes, {})
-        
+
         version_entry = self.parsed_file[version]
         if not version_entry:
             version_entry = Section.from_header_str("## [%s]\n" % version, VERSION_RE)
             self.parsed_file.insert_subsections(version_entry)
-        
+
         for header in merged_entries:
             header_entry = version_entry[header]
             trailing_newline = ""

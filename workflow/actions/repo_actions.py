@@ -14,7 +14,7 @@ metadata_exists = GitRepository.metadata_exists
 
 # In English, this is saying:
 #   "Take all of the version bumper actions, create them, and then execute them in order"
-def sequence(*version_bumpers): 
+def sequence(*version_bumpers):
     return lambda version: utils.sequence(*[version_bumper(version) for version_bumper in version_bumpers])
 
 def bump_cpp_project(project_name):
@@ -69,7 +69,7 @@ def bump_component(component, new_ref):
 # action should take the changelog as its argument
 def to_changelog_action(action):
     @metadata_exists('changelog')
-    def changelog_action(repo_name, branch): 
+    def changelog_action(repo_name, branch):
         (changelog_type, changelog_path) = GitRepository.repo_metadata[repo_name]['changelog']
         changelog_contents =  read_file(changelog_path)(repo_name, branch)
         changelog = changelog_type(changelog_contents)

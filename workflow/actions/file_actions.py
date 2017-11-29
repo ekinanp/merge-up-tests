@@ -13,10 +13,10 @@ from functools import partial
 #     update_file('Makefile', <code here>),
 #     create_file('some feature', <code here>),
 #     commit("Doing stuff!")
-#   ) 
+#   )
 #
 # Each "action" should take the repo name and the branch as parameters (to provide
-# clearer error messages on what might go wrong). 
+# clearer error messages on what might go wrong).
 #
 # TODO: Add "after_line", "before_line", "modify_lines" when time permits.
 #
@@ -45,7 +45,7 @@ def before_lines(file_path, line_re, generate_contents, n = -1):
 
 def map_lines(file_path, line_re, g, n = -1):
     def map_lines_action(f, ftemp):
-        lines = f.readlines() 
+        lines = f.readlines()
         matching_ixs = find_some(partial(re.search, line_re), lines, n)
         for ix in matching_ixs:
             lines[ix] = g(lines[ix])
@@ -59,9 +59,9 @@ def new_file(file_path, contents):
     return create_file(file_path, lambda f: f.write(contents))
 
 def rewrite_file(file_path, new_contents):
-    return update_file(file_path, lambda _, ftemp: ftemp.write(new_contents)) 
+    return update_file(file_path, lambda _, ftemp: ftemp.write(new_contents))
 
-def read_file(file_path, read = lambda f: f.read()): 
+def read_file(file_path, read = lambda f: f.read()):
     def read_file_action(file_path):
         with open(file_path, 'r') as f:
             return read(f)
@@ -77,7 +77,7 @@ def update_file(file_path, modify):
             with open(temp_file, 'w') as ftemp:
                 modify(f, ftemp)
 
-        os.rename(temp_file, file_path) 
+        os.rename(temp_file, file_path)
 
         git('add %s' % file_path)
 
@@ -106,7 +106,7 @@ def rename_file(old_path, new_path):
 
 def remove_file(file_path):
     removal_action = lambda _file_path: os.remove(_file_path) or git('rm %s' % _file_path)
-    return __crud_action(file_path, removal_action, __check_file_exists) 
+    return __crud_action(file_path, removal_action, __check_file_exists)
 
 def __crud_action(file_path, action, check_action_is_ok):
     def file_action(repo, branch):

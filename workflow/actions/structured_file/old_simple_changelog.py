@@ -3,7 +3,7 @@ import re
 from workflow.constants import VERSION_RE
 from workflow.utils import (cmp_version, validate_regex, validate_version)
 
-VERSION_HEADER = r'##\s+(%s)' % VERSION_RE 
+VERSION_HEADER = r'##\s+(%s)' % VERSION_RE
 CHANGES_SUMMARY = r'([^\s\*][^\*#]*)'
 
 # The "\[(?:#)?[^\]]+\]" is a regex describing the issue/ticket no. (label)
@@ -50,9 +50,9 @@ class SimpleChangelog(object):
 
         self.changelog[version] = (summary, changes)
 
-    def render(self):  
+    def render(self):
         def render_entry((version, (summary, version_entries))):
-            rendered_version_entries = '\n'.join(["* %s" % version_entry for version_entry in version_entries]) 
+            rendered_version_entries = '\n'.join(["* %s" % version_entry for version_entry in version_entries])
             if rendered_version_entries:
                 rendered_version_entries += "\n"
 

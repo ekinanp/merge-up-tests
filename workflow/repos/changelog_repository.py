@@ -9,7 +9,7 @@ class ChangelogRepository(GitRepository):
 
     def _init_changelog(self):
         return noop_action
- 
+
     def reset_branch(self, branch):
         super(ChangelogRepository, self).reset_branch(branch)
 

@@ -40,7 +40,7 @@ class JiraService:
 
         ticket_info = self.jira.issue(ticket)
         ticket_watchers = self.jira.watchers(ticket)
-        
+
         # calculate the involved devs
         assignee = [involved_dev_info(ticket_info.fields.assignee, "Assignee")]
         watchers = [involved_dev_info(watcher, "Watcher") for watcher in ticket_watchers.watchers]

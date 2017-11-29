@@ -14,7 +14,7 @@ def test_simple_changelog():
     puppet_agent.reset_branches()
 
     for (component_type, branch) in [(PxpAgent, "1.8.x"), (CppPcpClient, "1.5.x")]:
-        component = component_type(workspace = WORKSPACE) 
+        component = component_type(workspace = WORKSPACE)
         component.reset_branch(branch)
         component[branch](
             update_changelog(

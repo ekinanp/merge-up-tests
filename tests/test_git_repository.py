@@ -25,7 +25,7 @@ class GitRepositoryTestCase(RepositoryTestCase):
         assert os.path.exists(self.test_repo.root), 'puppet-agent directory was not properly created!'
 
         created_branches = in_repo(self.test_repo, ['git', 'branch']).split("\n")
-        created_branches = [re.sub('[ *]', '', branch) for branch in created_branches] 
+        created_branches = [re.sub('[ *]', '', branch) for branch in created_branches]
         for branch in self.test_branches:
             assert (("%s-%s" % (BRANCH_PREFIX, branch)) in created_branches), 'The stub for branch %s was not properly created!' % branch
 

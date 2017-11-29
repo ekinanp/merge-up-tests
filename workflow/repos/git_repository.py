@@ -89,8 +89,8 @@ class GitRepository(object):
     def in_branch(self, branch, do_action):
         stub = self.branches.get(branch)
         if stub is None:
-            raise Exception("Only the [%s] branches of the '%s' repo are write-permissible!" % (', '.join(self.branches.keys()), self.name)) 
-        
+            raise Exception("Only the [%s] branches of the '%s' repo are write-permissible!" % (', '.join(self.branches.keys()), self.name))
+
         def in_repo_action():
           git('checkout %s' % stub)
           return do_action(self.name, branch)
@@ -116,7 +116,7 @@ class GitRepository(object):
                 print("You answered 'No'! Your changes will not be pushed.")
 
         actions = actions + (push_action,)
-        self.in_branch(branch, sequence(*actions)) 
+        self.in_branch(branch, sequence(*actions))
 
     # This allows for more intuitive syntax like (using "facter" as an example):
     #   facter['3.6.x'](
@@ -131,7 +131,7 @@ class GitRepository(object):
     # which means "In branches 3.6.x and 5.3.x of facter do ..."
     def __getitem__(self, branch):
         return partial(self.to_branch, branch)
-        
+
     def reset_branch(self, branch):
         self.in_branch(branch, sequence(
             git_action('fetch upstream'),

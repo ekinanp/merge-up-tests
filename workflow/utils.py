@@ -32,7 +32,7 @@ def validate_input(valid, key, error_msg = "Input %s is invalid!"):
                 raise Exception(error_msg % s)
 
             return f(*args, **kwargs)
-        
+
         return with_validate_input
 
     return validate_input_decorator
@@ -105,7 +105,7 @@ def const(v):
 
 # returns the keys of the first n elements of xs satisfying the predicate p
 def find_some(p, xs, n = 1):
-    filtered_ixs = ifilter(lambda ix: p(xs[ix]), (e[0] for e in enumerate(xs))) 
+    filtered_ixs = ifilter(lambda ix: p(xs[ix]), (e[0] for e in enumerate(xs)))
     if (n >= 0):
         filtered_ixs = islice(filtered_ixs, n)
 

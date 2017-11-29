@@ -1,4 +1,4 @@
-from workflow.actions.repo_actions import (bump_component, bump_version, update_changelog) 
+from workflow.actions.repo_actions import (bump_component, bump_version, update_changelog)
 from workflow.actions.file_actions import modify_line
 from workflow.utils import (sequence, exec_stdout, commit, git_head, git_action)
 from workflow.repos.leatherman import *
@@ -29,7 +29,7 @@ def component_json_conflict(from_branch, to_branch):
 def version_bump_conflict(repo, from_branch, to_branch):
     repo[from_branch](bump_version("10.12.3"))
     repo[to_branch](bump_version("11.15.7"))
- 
+
 # this is when we have areas with duplicate entries
 def leatherman_changelog_conflict():
     LEATHERMAN["0.12.x"](
