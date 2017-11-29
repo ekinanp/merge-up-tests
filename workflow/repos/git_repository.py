@@ -1,4 +1,5 @@
 import os
+import re
 from functools import partial
 from tempfile import mkdtemp
 
@@ -101,8 +102,20 @@ class GitRepository(object):
     #
     # NOTE: Remember that the actual branch being modified is a stub of the passed-in
     # "branch".
-    def to_branch(self, branch, *actions):
-        actions = actions + (git_action('push'),)
+    def to_branch(self, branch, *actions, **kwargs):
+        def push_action(repo, branch):
+            if not kwargs.get('prompt_push'):
+                git('push')
+                return
+
+            user_response = raw_input("\n\nWould you like to push your changes to 'origin'? ")
+            if re.match(r'^(?:y|Y|%s)$' % '|'.join(["%s%s%s" % (l1, l2, l3) for l1 in ['y', 'Y'] for l2 in ['e', 'E'] for l3 in ['s', 'S']]), user_response):
+                print("You answered 'Yes'! Pushing your changes to 'origin' ...")
+                git('push')
+            else:
+                print("You answered 'No'! Your changes will not be pushed.")
+
+        actions = actions + (push_action,)
         self.in_branch(branch, sequence(*actions)) 
 
     # This allows for more intuitive syntax like (using "facter" as an example):

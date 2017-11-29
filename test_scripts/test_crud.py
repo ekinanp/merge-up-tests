@@ -29,3 +29,8 @@ contents = facter.in_branch(
 
 print("CONTRIBUTING CONTENTS:")
 print(contents)
+
+facter.in_branch(
+    "3.6.x",
+    new_file("Prompted_Push", "Prompting the 'git push'!"),
+)
