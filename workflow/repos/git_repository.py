@@ -118,6 +118,8 @@ class GitRepository(object):
             else:
                 print("You answered 'No'! Your changes will not be pushed.")
 
+            print("%s WORKSPACE: %s %s" % ("*" * 4, self.workspace, "*" * 4))
+
         actions = actions + (push_action,)
         self.in_branch(branch, sequence(*actions))
 
