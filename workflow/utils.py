@@ -81,6 +81,20 @@ def exec_stdout(*argv):
 
 git_head = exec_stdout('git', 'rev-parse', 'HEAD')
 
+@to_action
+def push(push_opts = '', prompt_push = None):
+    git_push = lambda : git('push %s' % push_opts)
+
+    if not prompt_push:
+        git_push()
+
+    user_response = raw_input("\n\nWould you like to push your changes to 'origin'? ")
+    if re.match(r'^(?:y|Y|%s)$' % '|'.join(["%s%s%s" % (l1, l2, l3) for l1 in ['y', 'Y'] for l2 in ['e', 'E'] for l3 in ['s', 'S']]), user_response):
+        print("You answered 'Yes'! Pushing your changes to 'origin' ...")
+        git_push()
+    else:
+        print("You answered 'No'! Your changes will not be pushed.")
+
 # creates a commit action
 def commit(msg):
     return git_action('commit -m \"%s\"' % msg)

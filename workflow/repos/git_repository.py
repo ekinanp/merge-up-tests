@@ -3,7 +3,7 @@ import re
 from functools import partial
 from tempfile import mkdtemp
 
-from workflow.utils import (in_directory, git, git_action, sequence, validate_input)
+from workflow.utils import (in_directory, git, git_action, sequence, validate_input, to_action, push)
 
 GITHUB_USERNAME = os.environ.get('GITHUB_USERNAME', '')
 BRANCH_PREFIX = os.environ.get('BRANCH_PREFIX', 'PA-1706')
@@ -72,6 +72,8 @@ class GitRepository(object):
         for key in metadata:
             self.__class__._add_repo_metadata(self.name, key, metadata[key])
 
+        self.prompt_push = kwargs.get('prompt_push', False)
+
         if os.path.exists(self.root):
             self.__prepare_stubs()
             return None
@@ -95,7 +97,9 @@ class GitRepository(object):
             raise Exception("Only the [%s] branches of the '%s' repo are write-permissible!" % (', '.join(self.branches.keys()), self.name))
 
         def in_repo_action():
+          print("\n\nSTARTING CONTEXT ...")
           git('checkout %s' % stub)
+          self.__print_context()(self.name, branch)
           return do_action(self.name, branch)
 
         return self.in_repo(in_repo_action)
@@ -106,21 +110,11 @@ class GitRepository(object):
     # NOTE: Remember that the actual branch being modified is a stub of the passed-in
     # "branch".
     def to_branch(self, branch, *actions, **kwargs):
-        def push_action(repo, branch):
-            if not kwargs.get('prompt_push'):
-                git('push')
-                return
+        prompt_push = self.prompt_push
+        if not kwargs.get('prompt_push') is None:
+            prompt_push = kwargs.get('prompt_push')
 
-            user_response = raw_input("\n\nWould you like to push your changes to 'origin'? ")
-            if re.match(r'^(?:y|Y|%s)$' % '|'.join(["%s%s%s" % (l1, l2, l3) for l1 in ['y', 'Y'] for l2 in ['e', 'E'] for l3 in ['s', 'S']]), user_response):
-                print("You answered 'Yes'! Pushing your changes to 'origin' ...")
-                git('push')
-            else:
-                print("You answered 'No'! Your changes will not be pushed.")
-
-            print("%s WORKSPACE: %s %s" % ("*" * 4, self.workspace, "*" * 4))
-
-        actions = actions + (push_action,)
+        actions = actions + (push('', prompt_push), self.__print_context())
         self.in_branch(branch, sequence(*actions))
 
     # This allows for more intuitive syntax like (using "facter" as an example):
@@ -138,11 +132,17 @@ class GitRepository(object):
         return partial(self.to_branch, branch)
 
     def reset_branch(self, branch):
+        @to_action
+        def print_reset_info():
+            print("RESETTING BRANCH %s ..." % branch)
+
         self.in_branch(branch, sequence(
+            print_reset_info(),
             git_action('fetch upstream'),
             git_action('reset --hard upstream/%s' % branch),
             git_action('clean -f -d'),
-            git_action('push --set-upstream origin %s --force' % self.branches[branch])
+            push('--set-upstream origin %s --force' % self.branches[branch], self.prompt_push),
+            self.__print_context()
         ))
 
     def reset_branches(self):
@@ -152,6 +152,7 @@ class GitRepository(object):
     def __prepare_stubs(self):
         # Ensure the branches are checked out
         branch_exists = lambda git_branch : self.in_repo(lambda : git('show-branch %s' % git_branch)) == 0
+
         for branch in self.branches:
             stub = self.branches[branch]
             if branch_exists(stub):
@@ -162,4 +163,10 @@ class GitRepository(object):
                 continue
 
             self.in_repo(lambda : git("checkout -b %s" % stub))
-            self.reset_branch(branch)
+
+    def __print_context(self):
+        def print_context_action(repo_name, branch):
+            print("%s PROJECT-ROOT: %s %s" % ("*" * 4, self.root, "*" * 4))
+            print("%s PROJECT-BRANCH: %s %s" % ("*" * 4, branch, "*" * 4))
+
+        return print_context_action

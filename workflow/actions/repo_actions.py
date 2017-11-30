@@ -3,7 +3,7 @@ import json
 
 from file_actions import (modify_line, read_file, rewrite_file, update_file)
 from workflow.repos.git_repository import GitRepository
-from workflow.utils import (commit, const, validate_version)
+from workflow.utils import (commit, const, validate_version, git)
 from workflow.constants import VERSION_RE
 import workflow.utils as utils
 

@@ -16,25 +16,39 @@ class Component(GitRepository):
         self.puppet_agent = kwargs['puppet_agent']
         super(Component, self).__init__(component_name, pa_branches.keys(), github_user, **kwargs)
 
-        # Now update the component URLs (if they have not already been updated) in the puppet-agent
-        # repo
-        component_url = super(Component, self.__class__)._git_url(github_user, self.name)
-        for pa_branch in set(flatten(self.pa_branches.values())):
-            self.puppet_agent[pa_branch](
-                update_component_json(self.name, 'url', component_url),
-                commit("Initialized the '%s' component's url!" % self.name)
-            )
-
     def to_branch(self, branch, *actions, **kwargs):
         super(Component, self).to_branch(branch, *actions, **kwargs)
-        self.__update_ref(branch, **kwargs)
+        if kwargs.get('update_ref'):
+            self.__update_ref(branch, **kwargs)
 
-    def reset_branch(self, branch):
+    def reset_branch(self, branch, **kwargs):
         super(Component, self).reset_branch(branch)
-        self.__update_ref(branch)
+        if kwargs.get('update_ref'):
+            self.__update_ref(branch, **kwargs)
+
+    def update_url(self, branch, **kwargs):
+        print("\n\nABOUT TO UPDATE COMPONENT %s's URL IN ITS COMPONENT.JSON FILE ..." % self.name)
+        print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
+
+        component_url = super(Component, self.__class__)._git_url(github_user, self.name)
+        for pa_branch in self.pa_branches[branch]:
+            self.puppet_agent[pa_branch](
+                update_component_json(self.name, 'url', component_url),
+                commit("Updated the '%s' component's url!" % self.name),
+                **kwargs
+            )
+
+    def update_urls(self, **kwargs):
+        for branch in self.branches:
+            self.update_url(branch, **kwargs)
 
     def __update_ref(self, branch, **kwargs):
+        print("\n\nABOUT TO BUMP COMPONENT %s's REF IN ITS COMPONENT.JSON FILE ..." % self.name)
+        print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
+
+        print("GETTING THE HEAD SHA FIRST ...")
         sha = self.in_branch(branch, git_head)
+        print("\nNOW DOING THE BUMPS ...")
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](
                 bump_component(self.name, sha),
