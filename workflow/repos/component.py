@@ -27,16 +27,17 @@ class Component(GitRepository):
 
     def to_branch(self, branch, *actions, **kwargs):
         super(Component, self).to_branch(branch, *actions, **kwargs)
-        self.__update_ref(branch)
+        self.__update_ref(branch, **kwargs)
 
     def reset_branch(self, branch):
         super(Component, self).reset_branch(branch)
         self.__update_ref(branch)
 
-    def __update_ref(self, branch):
+    def __update_ref(self, branch, **kwargs):
         sha = self.in_branch(branch, git_head)
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](
                 bump_component(self.name, sha),
-                commit("Bumping '%s' to '%s'!" % (self.name, sha))
+                commit("Bumping '%s' to '%s'!" % (self.name, sha)),
+                **kwargs
             )
