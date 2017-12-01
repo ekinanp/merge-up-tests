@@ -87,6 +87,7 @@ def push(push_opts = '', prompt_push = None):
 
     if not prompt_push:
         git_push()
+        return None
 
     user_response = raw_input("\n\nWould you like to push your changes to 'origin'? ")
     if re.match(r'^(?:y|Y|%s)$' % '|'.join(["%s%s%s" % (l1, l2, l3) for l1 in ['y', 'Y'] for l2 in ['e', 'E'] for l3 in ['s', 'S']]), user_response):
