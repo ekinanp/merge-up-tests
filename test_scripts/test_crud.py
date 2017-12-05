@@ -19,6 +19,8 @@ facter.to_branch(
     new_file("test_before", "Line One\nLine Two\nLine Three"),
     before_lines("test_before", "Line", const("Some junk right before!")),
     rename_file("Rakefile", "MY_RAKEFILE"),
+    delete_line("LICENSE", r"facter - Tool for collecting system facts."),
+    delete_line("LICENSE", r"Licensed under the Apache License"),
     commit("Testing out some CRUD stuff!")
 )
 

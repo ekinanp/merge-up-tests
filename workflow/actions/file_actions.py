@@ -1,7 +1,7 @@
 import os
 import re
 
-from workflow.utils import (git, find_some, validate_input)
+from workflow.utils import (git, find_some, validate_input, const)
 from functools import partial
 
 # This module contains some useful functions that are used to create actions capturing
@@ -42,6 +42,12 @@ def before_line(file_path, line_re, generate_contents):
 
 def before_lines(file_path, line_re, generate_contents, n = -1):
     return map_lines(file_path, line_re, lambda line: "%s\n%s" % (generate_contents(line), line), n)
+
+def delete_line(file_path, line_re):
+    return delete_lines(file_path, line_re, 1)
+
+def delete_lines(file_path, line_re, n = -1):
+    return map_lines(file_path, line_re, const(""))
 
 def map_lines(file_path, line_re, g, n = -1):
     def map_lines_action(f, ftemp):
