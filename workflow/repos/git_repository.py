@@ -79,9 +79,11 @@ class GitRepository(object):
             return None
 
         git('clone %s %s' % (self._git_url(github_user, self.name), self.root))
+        self.remotes = kwargs.get('remotes', { 'upstream' : 'puppetlabs' })
         with in_directory(self.root):
-            git('remote add upstream %s' % self._git_url('puppetlabs', self.name))
-            git('fetch upstream')
+            for (remote_name, remote_user) in self.remotes.iteritems():
+                git('remote add %s %s' % (remote_name, self._git_url(remote_user, self.name)))
+                git('fetch %s' % remote_name)
 
         self.__prepare_stubs()
 
@@ -131,15 +133,19 @@ class GitRepository(object):
     def __getitem__(self, branch):
         return partial(self.to_branch, branch)
 
-    def reset_branch(self, branch):
+    def reset_branch(self, branch, **kwargs):
         @to_action
         def print_reset_info():
             print("RESETTING BRANCH %s ..." % branch)
 
+        remote = kwargs.get('remote', 'upstream')
+        if remote != "origin" and not remote in self.remotes.keys():
+            raise Exception("'%s' is not a part of this repository's remotes!")
+
         self.in_branch(branch, sequence(
             print_reset_info(),
-            git_action('fetch upstream'),
-            git_action('reset --hard upstream/%s' % branch),
+            git_action('fetch %s' % remote),
+            git_action('reset --hard %s/%s' % (remote, branch)),
             git_action('clean -f -d'),
             push('--set-upstream origin %s --force' % self.branches[branch], self.prompt_push),
             self.__print_context()
