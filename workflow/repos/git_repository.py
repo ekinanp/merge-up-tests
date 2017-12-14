@@ -73,17 +73,23 @@ class GitRepository(object):
             self.__class__._add_repo_metadata(self.name, key, metadata[key])
 
         self.prompt_push = kwargs.get('prompt_push', False)
+        self.remotes = kwargs.get('remotes', { 'upstream' : 'puppetlabs' })
 
         if os.path.exists(self.root):
             self.__prepare_stubs()
             return None
 
         git('clone %s %s' % (self._git_url(github_user, self.name), self.root))
-        self.remotes = kwargs.get('remotes', { 'upstream' : 'puppetlabs' })
         with in_directory(self.root):
             for (remote_name, remote_user) in self.remotes.iteritems():
                 git('remote add %s %s' % (remote_name, self._git_url(remote_user, self.name)))
                 git('fetch %s' % remote_name)
+
+            # NOTE: Bit hacky, but it's a way to run some initialization. This should be cleaned
+            # up later
+            initialize_repo = kwargs.get("initialize_with", None)
+            if initialize_repo:
+                initialize_repo()
 
         self.__prepare_stubs()
 

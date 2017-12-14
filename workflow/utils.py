@@ -50,8 +50,10 @@ def validate_version(version):
 def in_directory(name):
     cwd = os.getcwd()
     os.chdir(name)
-    yield name
-    os.chdir(cwd)
+    try:
+        yield name
+    finally:
+        os.chdir(cwd)
 
 # Compares two semantic versions
 
@@ -76,8 +78,8 @@ def git_action(cmd):
     return git(cmd)
 
 @to_action
-def exec_stdout(*argv):
-    return subprocess.check_output(argv).strip()
+def exec_stdout(*argv, **kwargs):
+    return subprocess.check_output(argv, **kwargs).strip()
 
 git_head = exec_stdout('git', 'rev-parse', 'HEAD')
 
@@ -151,3 +153,6 @@ def sequence(*actions):
 # and F are those where pred(x) is False
 def ipartition(pred, iterator):
     return (ifilter(pred, iterator), ifilterfalse(lambda x : not pred(x), iterator))
+
+def identity(x):
+    return x
