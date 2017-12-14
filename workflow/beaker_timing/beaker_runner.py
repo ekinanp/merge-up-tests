@@ -7,6 +7,7 @@ import subprocess
 import os
 import re
 import json
+import tempfile
 
 # This class is a base class for "run-beaker" actions. Its constructor returns an action that
 # a repo can use to run beaker tests within it. Mostly used to make the timing stuff easier.
@@ -27,13 +28,22 @@ VM_FLOATY_CONFIG = {
     }
 }
 
-def bundle(action):
-    return os.system("BUNDLE_PATH=.bundle/gems BUNDLE_BIN=.bundle/bin bundle %s" % action)
+def set_bundle_environment(env_vars):
+    env_vars["BUNDLE_PATH"] = ".bundle/gems"
+    env_vars["BUNDLE_BIN"] = ".bundle/bin"
 
-def bundle_stdout(cmd):
+    return env_vars
+
+def bundle(action, **kwargs):
+    env_vars = set_bundle_environment(kwargs.get("env", {}))
+    for (env_var, value) in env_vars.iteritems():
+        os.putenv(env_var, value)
+    return os.system("bundle %s" % action)
+
+def bundle_stdout(cmd, **kwargs):
     environment = os.environ.copy()
-    environment["BUNDLE_PATH"] = ".bundle/gems"
-    environment["BUNDLE_BIN"] = ".bundle/bin" 
+    environment.update(kwargs.get("env", {}))
+    environment = set_bundle_environment(environment)
 
     return subprocess.check_output(
         "bundle %s" % cmd,
@@ -90,12 +100,23 @@ class BeakerRunner(object):
         self.beaker_rake_task = beaker_rake_task
         self.tests_need_master = tests_need_master
 
-    # This returns the host to add directly to the timing results and should also create the
-    # hosts.cfg file. Child classes will need to call the parent's method at the end of their
-    # implementation, as the parent will generate the ABS resources.
-    # TODO: Have method return the environment! Child processes should override protected
-    # method
-    def setup_beaker_environment(self, host_layout):
+    # This method should return a map of { env. var => value } representing the beaker
+    # environment
+    def env_vars(self, hosts_cfg_path):
+        env_vars = {
+            "SUITE_COMMIT" : os.environ.get("SUITE_COMMIT", "bd30b4eaa76151525a6a9af8c6d9aeee5f0f643f"),
+            "SUITE_VERSION" : os.environ.get("SUITE_VERSION", "5.3.3.106.gbd30b4e"),
+            "BEAKER_HOSTS" : hosts_cfg_path,
+            "OPTIONS" : "--test-tag-exclude=server",
+            "SERVER_VERSION" : os.environ.get("SERVER_VERSION", "latest"),
+            "BEAKER_HOSTGENERATOR_VERSION": os.environ.get("BEAKER_HOSTGENERATOR_VERSION", "1")
+        }
+        env_vars["SHA"] = env_vars["SUITE_COMMIT"]
+
+        return env_vars
+
+    # Returns a triple: (hosts_cfg_path, abs_hosts, host)
+    def generate_abs_hosts(self, host_layout):
         os_template = json.loads(beaker_hostgenerator(host_layout, templates_only = True)).keys()[0]
         abs_hosts = [BeakerRunner.get_abs_host(os_template)]
         host = {
@@ -110,16 +131,12 @@ class BeakerRunner(object):
             host_layout += "-redhat7-64m"
 
         # Now generate the hosts.cfg file
-        hosts_cfg = beaker_hostgenerator(host_layout)
-
-        print("HOSTS CFG FILE:")
-        print(hosts_cfg)
-        print("")
-        print("")
-        print("ABS HOSTS: %s" % abs_hosts)
-        print("TIMING TREE HOST: %s" % host)
+        hosts_cfg_content = beaker_hostgenerator(host_layout)
+        hosts_cfg_path = "hosts.yml"
+        with open(hosts_cfg_path, "w") as f:
+           f.write(hosts_cfg_content) 
             
-        return host
+        return (hosts_cfg_path, abs_hosts, host)
 
     def action(self, host_layout):
         def run_beaker_action(repo_name, branch):
@@ -130,15 +147,18 @@ class BeakerRunner(object):
                     os.makedirs("beaker-results")
                 if not os.path.exists(".bundle"):
                     bundle("install")
-                host = self.setup_beaker_environment(host_layout) 
 
-#                exit_code = os.system(bundle("exec %s" % self.beaker_rake_task))
-#                if exit_code != 0:
-#                    Exception("beaker failed to run successfully with the host layout of %s" % host_layout)
-#                TimingResults.add_host(
-#                    host,
-#                    "log/latest/tests-timing-trees.json",
-#                    output_file = "%s/%s.json" % (BEAKER_RESULTS_DIR, host['name'])
-#                )
+                hosts_cfg_path, abs_hosts, host = self.generate_abs_hosts(host_layout)
+                env_vars = self.env_vars(hosts_cfg_path)
+                env_vars.update({"ABS_RESOURCE_HOSTS" : json.dumps(abs_hosts, separators = (",", ":"))}) 
+
+                exit_code = bundle("exec rake %s" % self.beaker_rake_task, env = env_vars)
+                if exit_code != 0:
+                    raise Exception("beaker failed to run successfully with the host layout of %s" % host_layout)
+                TimingResults.add_host(
+                    host,
+                    "log/latest/tests-timing-trees.json",
+                    output_file = "%s/%s-%s.json" % (BEAKER_RESULTS_DIR, host['name'], host['platform'])
+                )
 
         return run_beaker_action

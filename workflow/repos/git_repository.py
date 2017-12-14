@@ -157,9 +157,9 @@ class GitRepository(object):
             self.__print_context()
         ))
 
-    def reset_branches(self):
+    def reset_branches(self, **kwargs):
         for branch in self.branches:
-            self.reset_branch(branch)
+            self.reset_branch(branch, **kwargs)
 
     def __prepare_stubs(self):
         # Ensure the branches are checked out

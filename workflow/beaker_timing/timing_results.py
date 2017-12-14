@@ -13,9 +13,9 @@ class TimingResults(object):
         output_file = kwargs.get("output_file", None)
         if output_file is None:
             (directory, basename) = os.path.split(timing_trees_json_path)
-            output_file = "%s-%s" % (host['name'], basename)
+            output_file = os.path.join(directory, "%s-%s" % (host['name'], basename))
 
-        with open(os.path.join(directory, output_file), 'w') as f:
+        with open(output_file, 'w') as f:
             f.write(json.dumps(timing_trees_new_format, sort_keys=True, indent=2, separators=(",", ": ")))
 
     def __init__(self, *result_files):
