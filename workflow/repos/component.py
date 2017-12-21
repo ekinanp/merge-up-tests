@@ -14,16 +14,17 @@ class Component(GitRepository):
     def __init__(self, component_name, pa_branches, github_user, **kwargs):
         self.pa_branches = {branch: flatten(pa_branches[branch]) for branch in pa_branches}
         self.puppet_agent = kwargs['puppet_agent']
+        self.update_ref = kwargs.get('update_ref', False)
         super(Component, self).__init__(component_name, pa_branches.keys(), github_user, **kwargs)
 
     def to_branch(self, branch, *actions, **kwargs):
         super(Component, self).to_branch(branch, *actions, **kwargs)
-        if kwargs.get('update_ref'):
+        if self.update_ref:
             self.__update_ref(branch, **kwargs)
 
     def reset_branch(self, branch, **kwargs):
         super(Component, self).reset_branch(branch)
-        if kwargs.get('update_ref'):
+        if self.update_ref:
             self.__update_ref(branch, **kwargs)
 
     def update_url(self, branch, **kwargs):
