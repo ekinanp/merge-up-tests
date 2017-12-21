@@ -5,7 +5,7 @@ from git_repository import GITHUB_USERNAME
 from component import Component
 from changelog_repository import ChangelogRepository
 
-class CppPcpClient(Component, ChangelogRepository):
+class CppPcpClient(Component):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = {
             'changelog' : (SimpleChangelog, "CHANGELOG.md"),

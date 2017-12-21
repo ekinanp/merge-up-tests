@@ -6,7 +6,7 @@ from component import Component
 from git_repository import GITHUB_USERNAME
 from changelog_repository import ChangelogRepository
 
-class Libwhereami(Component, ChangelogRepository):
+class Libwhereami(Component):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = {
             'changelog' : (

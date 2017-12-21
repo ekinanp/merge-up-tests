@@ -4,7 +4,7 @@ from component import Component
 from git_repository import GITHUB_USERNAME
 from changelog_repository import ChangelogRepository
 
-class Leatherman(Component, ChangelogRepository):
+class Leatherman(Component):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = {
             'changelog' : (
