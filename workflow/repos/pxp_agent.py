@@ -1,9 +1,9 @@
 from workflow.actions.repo_actions import bump_cpp_project
 from workflow.actions.structured_file.simple_changelog import SimpleChangelog
 from workflow.actions.file_actions import modify_lines
-from git_repository import GITHUB_USERNAME
-from component import Component
-from changelog_repository import ChangelogRepository
+from workflow.repos.git_repository import GITHUB_USERNAME
+from workflow.repos.component import Component
+from workflow.repos.changelog_repository import ChangelogRepository
 
 class PxpAgent(Component):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):

@@ -1,7 +1,7 @@
 import re
 
-from git_repository import (GitRepository, GITHUB_USERNAME)
-from puppet_agent import PuppetAgent
+from workflow.repos.git_repository import (GitRepository, GITHUB_USERNAME)
+from workflow.repos.puppet_agent import PuppetAgent
 from workflow.utils import (in_directory, commit, flatten, git_head)
 from workflow.constants import VERSION_RE
 from workflow.actions.repo_actions import (bump_component, update_component_json)
@@ -31,7 +31,7 @@ class Component(GitRepository):
         print("\n\nABOUT TO UPDATE COMPONENT %s's URL IN ITS COMPONENT.JSON FILE ..." % self.name)
         print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
 
-        component_url = super(Component, self.__class__)._git_url(github_user, self.name)
+        component_url = super(Component, self.__class__)._git_url(self.github_user, self.name)
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](
                 update_component_json(self.name, 'url', component_url),
@@ -48,7 +48,7 @@ class Component(GitRepository):
         print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
 
         print("GETTING THE HEAD SHA FIRST ...")
-        sha = self.in_branch(branch, git_head)
+        sha = self.in_branch(branch, git_head).decode("utf-8")
         print("\nNOW DOING THE BUMPS ...")
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](

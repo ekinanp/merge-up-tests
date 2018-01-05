@@ -74,14 +74,15 @@ class GitRepository(object):
 
         self.prompt_push = kwargs.get('prompt_push', False)
         self.remotes = kwargs.get('remotes', { 'upstream' : 'puppetlabs' })
+        self.github_user = github_user
 
         if os.path.exists(self.root):
             self.__prepare_stubs()
             return None
 
-        git('clone %s %s' % (self._git_url(github_user, self.name), self.root))
+        git('clone %s %s' % (self._git_url(self.github_user, self.name), self.root))
         with in_directory(self.root):
-            for (remote_name, remote_user) in self.remotes.iteritems():
+            for (remote_name, remote_user) in self.remotes.items():
                 git('remote add %s %s' % (remote_name, self._git_url(remote_user, self.name)))
                 git('fetch %s' % remote_name)
 

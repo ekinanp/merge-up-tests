@@ -1,6 +1,6 @@
 from workflow.actions.repo_actions import bump_version_file
-from component import Component
-from git_repository import (GITHUB_USERNAME)
+from workflow.repos.component import Component
+from workflow.repos.git_repository import (GITHUB_USERNAME)
 
 class MarionetteCollective(Component):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):

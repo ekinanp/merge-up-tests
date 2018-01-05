@@ -1,4 +1,4 @@
-from git_repository import (GitRepository, GITHUB_USERNAME)
+from workflow.repos.git_repository import (GitRepository, GITHUB_USERNAME)
 from workflow.actions.file_actions import update_file
 from workflow.utils import commit
 

@@ -2,7 +2,6 @@ from workflow.utils import unique
 
 from jira import JIRA
 from hypchat import HypChat
-from itertools import (ifilter, ifilterfalse)
 import os
 import re
 
@@ -11,7 +10,7 @@ import re
 # for now since when we do query ticket info., we also return HipChat info. as well
 class JiraService:
     def __init__(self):
-        self.jira = JIRA(server='https://tickets.puppetlabs.com', basic_auth=(os.environ['JIRA_USER'], os.environ['JIRA_PASSWORD']))
+        self.jira = JIRA(server=os.environ['JIRA_INSTANCE'], basic_auth=(os.environ['JIRA_USER'], os.environ['JIRA_PASSWORD']))
         self.hipchat = HypChat(os.environ['HIPCHAT_TOKEN'], endpoint = "https://puppet.hipchat.com")
 
         # map of <field-id> -> <field-name>, used to make querying custom fields more readable.
@@ -75,4 +74,4 @@ class JiraService:
 
     # TODO: Make this private after everything's tested
     def get_fields(self, jira_issue):
-        return {self.name_map[field_id] : field_value for field_id, field_value in jira_issue.raw['fields'].iteritems()}
+        return {self.name_map[field_id] : field_value for field_id, field_value in jira_issue.raw['fields'].items()}

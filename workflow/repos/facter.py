@@ -1,6 +1,6 @@
 from workflow.actions.repo_actions import (bump_cpp_project, bump_version_file, sequence)
-from git_repository import GITHUB_USERNAME
-from component import Component
+from workflow.repos.git_repository import GITHUB_USERNAME
+from workflow.repos.component import Component
 
 class Facter(Component):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):

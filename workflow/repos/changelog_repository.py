@@ -1,6 +1,6 @@
 from workflow.utils import (commit, const, noop_action, to_action)
 from workflow.actions.repo_actions import to_changelog_action
-from git_repository import (GitRepository, GITHUB_USERNAME)
+from workflow.repos.git_repository import (GitRepository, GITHUB_USERNAME)
 
 # These are GitRepositories that have a CHANGELOG
 class ChangelogRepository(GitRepository):

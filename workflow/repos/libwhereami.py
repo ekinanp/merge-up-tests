@@ -2,9 +2,9 @@ from workflow.actions.repo_actions import bump_cpp_project
 from workflow.actions.structured_file.sectioned_changelog import (SectionedChangelog, update_section)
 from workflow.actions.file_actions import after_line
 from workflow.utils import (const, noop_action)
-from component import Component
-from git_repository import GITHUB_USERNAME
-from changelog_repository import ChangelogRepository
+from workflow.repos.component import Component
+from workflow.repos.git_repository import GITHUB_USERNAME
+from workflow.repos.changelog_repository import ChangelogRepository
 
 class Libwhereami(Component):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
