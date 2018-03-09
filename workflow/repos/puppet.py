@@ -7,9 +7,8 @@ class Puppet(Component):
         kwargs['metadata'] = {
             'version_bumper' : bump_ruby_project('puppet', ["5.3.x", "master"])
         }
-
         super(Puppet, self).__init__(
-            'puppet',
+            "puppet",
             { "4.10.x": "1.10.x", "5.3.x": "5.3.x", "master": "master"},
             github_user,
             **kwargs

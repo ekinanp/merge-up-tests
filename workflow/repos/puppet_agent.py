@@ -8,4 +8,5 @@ from workflow.utils import commit
 class PuppetAgent(GitRepository):
     def __init__(self, github_user = GITHUB_USERNAME, **kwargs):
         kwargs['metadata'] = { 'vanagon_repo' : True }
-        super(PuppetAgent, self).__init__('puppet-agent', ['1.10.x', '5.3.x', 'master'], github_user, **kwargs)
+        repo_name = "puppet-agent-private" if kwargs.get("use_private_fork", False) else "puppet-agent"
+        super(PuppetAgent, self).__init__(repo_name, ['1.10.x', '5.3.x', 'master'], github_user, **kwargs)

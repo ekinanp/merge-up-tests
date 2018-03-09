@@ -123,7 +123,7 @@ class GitRepository(object):
         if not kwargs.get('prompt_push') is None:
             prompt_push = kwargs.get('prompt_push')
 
-        actions = actions + (push('', prompt_push), self.__print_context())
+        actions = actions + (push('--force', prompt_push), self.__print_context())
         self.in_branch(branch, sequence(*actions))
 
     # This allows for more intuitive syntax like (using "facter" as an example):

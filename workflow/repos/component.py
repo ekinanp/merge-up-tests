@@ -15,27 +15,32 @@ class Component(GitRepository):
         self.pa_branches = {branch: flatten(pa_branches[branch]) for branch in pa_branches}
         self.puppet_agent = kwargs['puppet_agent']
         self.update_ref = kwargs.get('update_ref', False)
-        super(Component, self).__init__(component_name, pa_branches.keys(), github_user, **kwargs)
+        self.is_private_fork = kwargs.get("use_private_fork", False)
+        self.component_name = component_name
+        repo_name = self.component_name
+        if self.is_private_fork:
+            repo_name += "-private"
+        super(Component, self).__init__(repo_name, pa_branches.keys(), github_user, **kwargs)
 
     def to_branch(self, branch, *actions, **kwargs):
         super(Component, self).to_branch(branch, *actions, **kwargs)
-        if self.update_ref:
+        if self.update_ref or kwargs.get('update_ref', None):
             self.__update_ref(branch, **kwargs)
 
     def reset_branch(self, branch, **kwargs):
         super(Component, self).reset_branch(branch)
-        if self.update_ref:
+        if self.update_ref or kwargs.get('update_ref', None):
             self.__update_ref(branch, **kwargs)
 
     def update_url(self, branch, **kwargs):
-        print("\n\nABOUT TO UPDATE COMPONENT %s's URL IN ITS COMPONENT.JSON FILE ..." % self.name)
+        print("\n\nABOUT TO UPDATE COMPONENT %s's URL IN ITS COMPONENT.JSON FILE ..." % self.component_name)
         print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
 
         component_url = super(Component, self.__class__)._git_url(self.github_user, self.name)
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](
-                update_component_json(self.name, 'url', component_url),
-                commit("Updated the '%s' component's url!" % self.name),
+                update_component_json(self.component_name, 'url', component_url),
+                commit("Updated the '%s' component's url!" % self.component_name),
                 **kwargs
             )
 
@@ -44,7 +49,7 @@ class Component(GitRepository):
             self.update_url(branch, **kwargs)
 
     def __update_ref(self, branch, **kwargs):
-        print("\n\nABOUT TO BUMP COMPONENT %s's REF IN ITS COMPONENT.JSON FILE ..." % self.name)
+        print("\n\nABOUT TO BUMP COMPONENT %s's REF IN ITS COMPONENT.JSON FILE ..." % self.component_name)
         print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
 
         print("GETTING THE HEAD SHA FIRST ...")
@@ -52,7 +57,7 @@ class Component(GitRepository):
         print("\nNOW DOING THE BUMPS ...")
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](
-                bump_component(self.name, sha),
-                commit("Bumping '%s' to '%s'!" % (self.name, sha)),
+                bump_component(self.component_name, sha),
+                commit("Bumping '%s' to '%s'!" % (self.component_name, sha)),
                 **kwargs
             )

@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from collections import Iterable
 from itertools import (filterfalse, islice)
+from functools import reduce
 import os
 import re
 import subprocess
