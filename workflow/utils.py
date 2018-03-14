@@ -80,7 +80,7 @@ def git_action(cmd):
 
 @to_action
 def exec_stdout(*argv, **kwargs):
-    return subprocess.check_output(argv, **kwargs).strip()
+    return subprocess.check_output(argv, **kwargs).decode("utf-8").strip()
 
 git_head = exec_stdout('git', 'rev-parse', 'HEAD')
 
