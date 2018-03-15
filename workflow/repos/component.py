@@ -53,7 +53,7 @@ class Component(GitRepository):
         print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
 
         print("GETTING THE HEAD SHA FIRST ...")
-        sha = self.in_branch(branch, git_head).decode("utf-8")
+        sha = self.in_branch(branch, git_head)
         print("\nNOW DOING THE BUMPS ...")
         for pa_branch in self.pa_branches[branch]:
             self.puppet_agent[pa_branch](
