@@ -11,7 +11,7 @@ class Component(GitRepository):
     #
     # NOTE: Might not be a bad idea to pass in the puppet_agent repo as a parameter to the
     # constructor.
-    def __init__(self, component_name, pa_branches, github_user, **kwargs):
+    def __init__(self, component_name, pa_branches, github_user = GITHUB_USERNAME, **kwargs):
         self.pa_branches = {branch: flatten(pa_branches[branch]) for branch in pa_branches}
         self.puppet_agent = kwargs['puppet_agent']
         self.update_ref = kwargs.get('update_ref', False)
