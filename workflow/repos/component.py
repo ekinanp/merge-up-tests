@@ -1,7 +1,6 @@
 import re
 
 from workflow.repos.git_repository import (GitRepository, GITHUB_USERNAME)
-from workflow.repos.puppet_agent import PuppetAgent
 from workflow.utils import (in_directory, commit, flatten, git_head)
 from workflow.constants import VERSION_RE
 from workflow.actions.repo_actions import (bump_component, update_component_json)
@@ -28,11 +27,14 @@ class Component(GitRepository):
             self.__update_ref(branch, **kwargs)
 
     def reset_branch(self, branch, **kwargs):
-        super(Component, self).reset_branch(branch)
-        if self.update_ref or kwargs.get('update_ref', None):
+        super(Component, self).reset_branch(branch, **kwargs)
+        if kwargs.get('update_ref', False) or self.update_ref:
             self.__update_ref(branch, **kwargs)
 
     def update_url(self, branch, **kwargs):
+        push_agent = kwargs.get('push_agent', False)
+        kwargs['push'] = push_agent
+
         print("\n\nABOUT TO UPDATE COMPONENT %s's URL IN ITS COMPONENT.JSON FILE ..." % self.component_name)
         print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
 
@@ -49,6 +51,9 @@ class Component(GitRepository):
             self.update_url(branch, **kwargs)
 
     def __update_ref(self, branch, **kwargs):
+        push_agent = kwargs.get('push_agent', False)
+        kwargs['push'] = push_agent
+
         print("\n\nABOUT TO BUMP COMPONENT %s's REF IN ITS COMPONENT.JSON FILE ..." % self.component_name)
         print("THIS WILL HAPPEN IN THE %s BRANCHES OF THE PUPPET AGENT" % ', '.join(self.pa_branches[branch]))
 

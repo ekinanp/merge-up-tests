@@ -60,6 +60,15 @@ def map_lines(file_path, line_re, g, n = -1):
 
     return update_file(file_path, map_lines_action)
 
+def append_line(file_path, line):
+    def append_line_action(f, ftemp):
+        lines = f.readlines()
+        lines.append(line + "\n") 
+
+        ftemp.writelines(lines)
+
+    return update_file(file_path, append_line_action)
+
 # creates a new file at the designated path with the provided contents
 def new_file(file_path, contents):
     return create_file(file_path, lambda f: f.write(contents))

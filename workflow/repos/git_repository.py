@@ -123,7 +123,8 @@ class GitRepository(object):
         if not kwargs.get('prompt_push') is None:
             prompt_push = kwargs.get('prompt_push')
 
-        actions = actions + (push('--force', prompt_push), self.__print_context())
+        if kwargs.get('push', False):
+            actions = actions + (push('--force', prompt_push), self.__print_context())
         self.in_branch(branch, sequence(*actions))
 
     # This allows for more intuitive syntax like (using "facter" as an example):
@@ -153,10 +154,15 @@ class GitRepository(object):
             print_reset_info(),
             git_action('fetch %s' % remote),
             git_action('reset --hard %s/%s' % (remote, branch)),
-            git_action('clean -f -d'),
-            push('--set-upstream origin %s --force' % self.branches[branch], self.prompt_push),
-            self.__print_context()
+            git_action('clean -f -d')
         ))
+
+        if kwargs.get('push', False):
+            self.in_branch(branch,
+                push('--set-upstream origin %s --force' % self.branches[branch], self.prompt_push),
+            )
+
+        self.in_branch(branch, self.__print_context())
 
     def reset_branches(self, **kwargs):
         for branch in self.branches:

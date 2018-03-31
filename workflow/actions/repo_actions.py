@@ -1,5 +1,6 @@
 from functools import partial
 import json
+import re
 
 from workflow.actions.file_actions import (modify_line, read_file, rewrite_file, update_file)
 from workflow.repos.git_repository import GitRepository
@@ -39,7 +40,29 @@ def bump_ruby_project(project_name, gemspec_branches):
 def bump_version_file(version_file, prefix, suffix = ''):
     return lambda version: modify_line(version_file, r"(%s)%s(%s)" % (prefix, VERSION_RE, suffix), "\g<1>%s\g<2>" % version)
 
-#def sequence(
+def read_version(repo_name, branch):
+    def read_version_file(path, prefix_regex, suffix_regex):
+        matching_regex = re.compile("%s%s%s" % (prefix_regex, "([0-9]+\.[0-9]+\.[0-9]+)", suffix_regex))
+        file_contents = read_file(path)(repo_name, branch)
+        match_obj = re.search(matching_regex, read_file(path)(repo_name, branch))
+
+        return (match_obj.group(1) or None)
+
+    hash_map = {
+         "VERSION"                       : ['', ''],
+         "CMakeLists.txt"                : ["project\([\w-]+ VERSION ", "\)"],
+         "lib/%s/version.rb" % repo_name : ["[^\s]*VERSION = [\'\"]", "[\'\"]"],
+         "lib/mcollective.rb"            : ["\s*VERSION=[\'\"]", "[\'\"]"],
+    }
+    for path, (prefix, suffix) in hash_map.items():
+        try:
+            return read_version_file(path, prefix, suffix)
+        except:
+            pass
+ 
+    raise Exception("Not a versioned repo!")
+
+    return read_version_action
 
 @validate_version(0)
 def bump_version(version):

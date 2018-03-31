@@ -17,6 +17,7 @@ def __puppet_agent(github_user = GITHUB_USERNAME, **kwargs):
     branches = [
         '1.10.x',
         '5.3.x',
+        '5.3.6_release',
         '5.5.x',
         'master'
     ]
@@ -135,5 +136,8 @@ REPOS = {
     'facter' : __facter,
     'hiera' : __hiera,
     'puppet' : __puppet,
-    'marionette_collective' : __marionette_collective,
+    'marionette-collective' : __marionette_collective,
 }
+
+def pa_components():
+    return list(set(REPOS.keys()) - set(['puppet-agent']))
