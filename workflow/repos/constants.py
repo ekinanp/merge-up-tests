@@ -17,8 +17,9 @@ def __puppet_agent(github_user = GITHUB_USERNAME, **kwargs):
     branches = [
         '1.10.x',
         '5.3.x',
-        '5.3.6_release',
         '5.5.x',
+        '6.0.x',
+        '6.1.x',
         'master'
     ]
     return GitRepository(repo_name, branches, github_user, **kwargs)
@@ -31,6 +32,7 @@ def __leatherman(github_user = GITHUB_USERNAME, **kwargs):
         "0.12.x": "1.10.x",
         "1.2.x": "5.3.x",
         "1.4.x": "5.5.x",
+        "1.5.x": ["6.0.x", "6.1.x"],
         "master": "master",
     }
 
@@ -44,6 +46,7 @@ def __pxp_agent(github_user = GITHUB_USERNAME, **kwargs):
         "1.5.x": "1.10.x",
         "1.8.x": "5.3.x",
         "1.9.x": "5.5.x",
+        "1.10.x": ["6.0.x", "6.1.x"],
         "master": "master",
     }
 
@@ -55,6 +58,7 @@ def __cpp_pcp_client(github_user = GITHUB_USERNAME, **kwargs):
     }
     pa_branches = {
         "1.5.x": [ "1.10.x", "5.3.x", "5.5.x" ],
+        "1.6.x": ["6.0.x", "6.1.x"],
         "master": "master",
     }
 
@@ -66,7 +70,7 @@ def __libwhereami(github_user = GITHUB_USERNAME, **kwargs):
     }
     pa_branches = {
         "0.1.x": "5.3.x",
-        "0.2.x": "5.5.x",
+        "0.2.x": ["5.5.x", "6.0.x", "6.1.x"],
         "master": "master",
     }
 
@@ -84,6 +88,7 @@ def __facter(github_user = GITHUB_USERNAME, **kwargs):
         "3.6.x": "1.10.x",
         "3.9.x": "5.3.x",
         "3.11.x": "5.5.x",
+        "3.12.x": ["6.0.x", "6.1.x"],
         "master": "master",
     }
 
@@ -95,7 +100,8 @@ def __hiera(github_user = GITHUB_USERNAME, **kwargs):
     }
     pa_branches = {
         "3.3.x": "1.10.x",
-        "3.4.x": [ "5.3.x", "5.5.x" ],
+        "3.4.x": [ "5.3.x", "5.5.x", "6.0.x" ],
+        "3.5.x": "6.1.x",
         "master": "master",
     }
 
@@ -109,6 +115,8 @@ def __puppet(github_user = GITHUB_USERNAME, **kwargs):
         "4.10.x": "1.10.x",
         "5.3.x": "5.3.x",
         "5.5.x": "5.5.x",
+        "6.0.x": "6.0.x",
+        "6.1.x": "6.1.x",
         "master": "master",
     }
 
@@ -139,5 +147,11 @@ REPOS = {
     'marionette-collective' : __marionette_collective,
 }
 
-def pa_components():
-    return list(set(REPOS.keys()) - set(['puppet-agent']))
+def pa_components(agent_branch = "5.5.x"):
+    components = set(REPOS.keys()) - set(['puppet-agent'])
+    if not (agent_branch in ["1.10.x", "5.3.x", "5.5.x"]):
+        components = components - set(["marionette-collective"])
+
+    return list(components)
+
+

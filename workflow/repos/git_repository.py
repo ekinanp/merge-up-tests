@@ -168,6 +168,8 @@ class GitRepository(object):
         for branch in self.branches:
             self.reset_branch(branch, **kwargs)
 
+        self.in_repo(lambda : push('--set-upstream origin --tags', self.prompt_push)(self.name, "master"))
+
     def __prepare_stubs(self):
         # Ensure the branches are checked out
         branch_exists = lambda git_branch : self.in_repo(lambda : git('show-branch %s' % git_branch)) == 0
